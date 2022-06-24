@@ -53,7 +53,7 @@ def commit_version_file(version_file: str, version_string: str):
     # check if added
     # returns non-zero if there is something to commit
     proc = subprocess.run(f'git diff-index --cached --quiet HEAD', check=False)
-    if proc.returncode != 0:
+    if proc.returncode == 0:
         raise Exception(f'git add {version_file} failed')
     subprocess.run(f'git commit -m "version: {version_string}"', check=True)
     subprocess.run(f'git push', check=True)
