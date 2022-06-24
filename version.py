@@ -120,6 +120,7 @@ def update_versions(sys_args: [], git_tag_prefix: str, project_versions: []):
 
     _update_version_file(version_file, versions_to_increment)
 
+    # iterate through VERSION_TAGS so the order will be correct
     version_string = ".".join([str(APP_VERSION[item]) for item in
                                filter(lambda x: x in VERSION_TAGS, project_versions)])
 
@@ -128,12 +129,12 @@ def update_versions(sys_args: [], git_tag_prefix: str, project_versions: []):
     if len(versions_to_increment) > 0:
         git_tag = f'{git_tag_prefix}{version_string}'
         print(f'git tag: {git_tag_prefix}{version_string}')
-        try:
-            commit_version_file(version_file, git_tag)
-            update_git_tag(git_tag)
-        except (subprocess.CalledProcessError, FileNotFoundError, Exception) as e:
-            print(e)
-            return -1
+        # try:
+        #     commit_version_file(version_file, git_tag)
+        #     update_git_tag(git_tag)
+        # except (subprocess.CalledProcessError, FileNotFoundError, Exception) as e:
+        #     print(e)
+        #     return -1
 
     return 0
 
