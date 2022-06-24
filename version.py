@@ -50,6 +50,11 @@ def _update_version_file(version_file, version_types: []):
 # can throw subprocess.CalledProcessError
 def commit_version_file(version_file: str, version_string: str):
     subprocess.run(f'git add {version_file}', check=True)
+    # check if added
+    # returns non-zero if there is something to commit
+    proc = subprocess.run(f'git diff-index --cached --quiet HEAD', check=False)
+    if proc.returncode != 0:
+        raise Exception(f'git add {version_file} failed')
     subprocess.run(f'git commit -m "version: {version_string}"', check=True)
     subprocess.run(f'git push', check=True)
 
@@ -123,12 +128,12 @@ def update_versions(sys_args: [], git_tag_prefix: str, project_versions: []):
     if len(versions_to_increment) > 0:
         git_tag = f'{git_tag_prefix}{version_string}'
         print(f'git tag: {git_tag_prefix}{version_string}')
-        # try:
-        #     commit_version_file(version_file, git_tag)
-        #     update_git_tag(git_tag)
-        # except (subprocess.CalledProcessError, FileNotFoundError) as e:
-        #     print(e)
-        #     return -1
+        try:
+            commit_version_file(version_file, git_tag)
+            update_git_tag(git_tag)
+        except (subprocess.CalledProcessError, FileNotFoundError, Exception) as e:
+            print(e)
+            return -1
 
     return 0
 
