@@ -78,23 +78,29 @@ def update_versions(sys_args: [], git_tag_prefix: str, project_versions: []):
     version_file = sys.argv[1]
 
     versions_to_increment = sys.argv[ARG_TAG_START_INDEX:len(sys.argv)]
-    filtered_versions_to_increment = [item for item in
-                                      filter(lambda x: x in VERSION_TAGS, versions_to_increment)]
+    print(f'used by project: {project_versions}')
+    print(f'increment: {versions_to_increment}')
+
+    # contains only valid project tags
     filtered_project_versions = [item for item in
                                  filter(lambda x: x in VERSION_TAGS, project_versions)]
-
-    print(f'used by project: {project_versions}')
+    # print(f'used by project: {filtered_project_versions}')
+    # check if every tag used by the project are valid
     if len(filtered_project_versions) != len(project_versions):
         invalid_versions = [item for item in
                             filter(lambda x: x not in VERSION_TAGS, project_versions)]
         print(f'invalid project version type(s): {invalid_versions}')
         return -1
 
+    # check if every tag to be incremented are valid
+    # contains versions valid for the project only, that is, listed in filtered_project_versions
+    filtered_versions_to_increment = [item for item in
+                                      versions_to_increment if item in filtered_project_versions]
     # print(filtered_versions_to_increment)
     if len(filtered_versions_to_increment) != len(versions_to_increment):
         invalid_versions = [item for item in
-                            filter(lambda x: x not in VERSION_TAGS, versions_to_increment)]
-        print(f'print invalid version type(s): {invalid_versions}')
+                            versions_to_increment if item not in filtered_project_versions]
+        print(f'print invalid version type(s) to increment: {invalid_versions}')
         return -1
 
     filtered_project_versions_to_increment = [item for item in filtered_versions_to_increment if
@@ -104,7 +110,7 @@ def update_versions(sys_args: [], git_tag_prefix: str, project_versions: []):
     if len(filtered_project_versions_to_increment) != len(filtered_versions_to_increment):
         invalid_versions = [item for item in filtered_versions_to_increment if
                             item not in filtered_project_versions_to_increment]
-        print(f'version type(s) not used by the project {invalid_versions}')
+        print(f'version type(s) to increment not used by the project {invalid_versions}')
         return -1
 
     _update_version_file(version_file, versions_to_increment)
