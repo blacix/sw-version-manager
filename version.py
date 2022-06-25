@@ -49,7 +49,7 @@ class VersionManager:
             self._update_version_file()
             # iterate through VERSION_TAGS so the order will be correct
             self.version_string = ".".join([str(self.version_map[item]) for item in self.version_tags])
-            subprocess.run(f'export VERSION_STRING={self.version_string}"', check=True, shell=True)
+            subprocess.run(f'export VERSION_STRING={self.version_string}', check=True, shell=True)
             print(f'new version: {self.version_string}')
             self._git_update()
         except (subprocess.CalledProcessError, FileNotFoundError, Exception) as e:
