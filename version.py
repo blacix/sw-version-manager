@@ -35,7 +35,7 @@ class VersionManager:
     def _load_config(self):
         self.version_file = sys.argv[1]
         self.config_json = sys.argv[2]
-        print('loading config')
+        # print('loading config')
         config_json = json.load(open(self.config_json))
         self.version_tags = config_json["version_tags"]
         self.increment_tags = config_json["increment"]
@@ -51,9 +51,10 @@ class VersionManager:
         self.commit_version_file = '--nocommit' not in sys.argv and not self.read_only
         self.create_git_tag = '--notag' not in sys.argv and not self.read_only
 
-        print('config done')
+        # print('config done')
         print(f'used by project: {self.version_tags}')
-        print(f'increment: {self.increment_tags}')
+        if not self.read_only:
+            print(f'increment: {self.increment_tags}')
 
     def execute(self):
         if len(self.sys_args) < ARG_CNT:
@@ -88,7 +89,7 @@ class VersionManager:
             raise Exception("invalid version type(s) found. Check your config!")
 
     def _update_versions(self):
-        print(f'updating {str(self.increment_tags)}')
+        # print(f'updating {str(self.increment_tags)}')
         new_lines = []
         with open(self.version_file, 'r') as file:
             for line in file:
@@ -115,7 +116,7 @@ class VersionManager:
                 new_line = line
             # update version object
             self.version_map[version_type] = new_version
-            print(new_line.strip())
+            # print(new_line.strip())
         else:
             new_line = line
         return new_line
@@ -123,7 +124,7 @@ class VersionManager:
     def _create_version_string(self):
         # iterate through VERSION_TAGS so the order will be correct
         self.version_string = ".".join([str(self.version_map[item]) for item in self.version_tags])
-        print(f'new version: {self.version_string}')
+        print(f'{self.version_string}')
 
     # can throw subprocess.CalledProcessError, FileNotFoundError, Exception
     def _git_update(self):
