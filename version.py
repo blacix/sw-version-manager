@@ -108,7 +108,7 @@ class VersionManager:
         if len(self.increment_tags) > 0 and self.create_git_tag:
             git_tag = f'{self.git_tag_prefix}{self.version_string}'
             print(f'git tag: {self.git_tag_prefix}{self.version_string}')
-            self._commit_version_file(self.version_file, git_tag)
+            # self._commit_version_file(self.version_file, git_tag)
             self._update_git_tag(git_tag)
 
     # can throw subprocess.CalledProcessError
