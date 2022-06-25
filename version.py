@@ -30,6 +30,7 @@ class VersionManager:
         self.version_output_file = None
         self.commit_message = ""
         self.append_version = True
+        self.create_output_files = False
 
     # can throw FileNotFoundError
     def _load_config(self):
@@ -50,6 +51,7 @@ class VersionManager:
         self.update_version_file = '--noupdate' not in sys.argv and not self.read_only
         self.commit_version_file = '--nocommit' not in sys.argv and self.update_version_file and not self.read_only
         self.create_git_tag = '--notag' not in sys.argv and not self.read_only
+        self.create_output_files = '--output' in sys.argv
 
         # print('config done')
         # print(f'used by project: {self.version_tags}')
@@ -178,8 +180,9 @@ class VersionManager:
             print(f'tag {tag_name} already exists')
 
     def _create_output_files(self):
-        with open(self.version_output_file, 'w') as file:
-            file.write(self.version_string)
+        if self.create_output_files:
+            with open(self.version_output_file, 'w') as file:
+                file.write(self.version_string)
 
 
 if __name__ == '__main__':
