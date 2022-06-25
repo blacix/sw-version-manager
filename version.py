@@ -47,8 +47,6 @@ class VersionManager:
             self._load_config()
             self._check_version_tags()
             self._update_version_file()
-
-            # create version string
             # iterate through VERSION_TAGS so the order will be correct
             self.version_string = ".".join([str(self.version_map[item]) for item in self.version_tags])
             print(f'new version: {self.version_string}')
