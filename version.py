@@ -134,7 +134,7 @@ class VersionManager:
         # print(output)
         if bytes(f'{tag_name}\n', 'utf-8') not in output:
             subprocess.run(f'git tag {tag_name}', check=True, shell=True)
-            subprocess.run(f'git push origin {tag_name}', check=True, shell=True)
+            subprocess.run(f'git push origin tag {tag_name}', check=True, shell=True)
         else:
             print(f'tag {tag_name} already exists')
 
