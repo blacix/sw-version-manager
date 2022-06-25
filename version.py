@@ -48,6 +48,7 @@ class VersionManager:
             self._load_config()
             self._check_version_tags()
             self._update_versions()
+            self.create_version_string()
             self._git_update()
             self._create_output_files()
         except (subprocess.CalledProcessError, FileNotFoundError, Exception) as e:
