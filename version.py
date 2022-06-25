@@ -20,8 +20,11 @@ class VersionManager:
         self.version_tags = []
         self.increment_tags = []
         self.version_map = {}
-        self.git_tag_prefix = ""
+        self.update_version_file = False
+        self.commit_version_file = False
+        self.read_only = False
         self.create_git_tag = False
+        self.git_tag_prefix = ""
         self.git_tag = ""
         self.version_string = ""
         self.version_output_file = None
@@ -36,12 +39,18 @@ class VersionManager:
         config_json = json.load(open(self.config_json))
         self.version_tags = config_json["version_tags"]
         self.increment_tags = config_json["increment"]
-        self.git_tag_prefix = config_json["git_tag_prefix"]
         self.create_git_tag = config_json["create_git_tag"]
+        self.git_tag_prefix = config_json["git_tag_prefix"]
         self.version_output_file = config_json["output_file"]
         self.commit_message = config_json["commit_message"]
         self.append_version = config_json["append_version"]
         self.version_map = {self.version_tags[i]: 0 for i in range(0, len(self.version_tags))}
+
+        self.read_only = '--read' in sys.argv
+        self.update_version_file = '--noupdate' not in sys.argv and not self.read_only
+        self.commit_version_file = '--nocommit' not in sys.argv and not self.read_only
+        self.create_git_tag = '--notag' not in sys.argv and not self.read_only
+
         print('config done')
         print(f'used by project: {self.version_tags}')
         print(f'increment: {self.increment_tags}')
@@ -86,7 +95,7 @@ class VersionManager:
                 new_line = self._process_c_line(line)
                 new_lines.append(new_line)
 
-        if len(self.increment_tags) > 0:
+        if len(self.increment_tags) > 0 and self.update_version_file:
             with open(self.version_file, 'w') as file:
                 file.writelines(new_lines)
 
@@ -118,13 +127,15 @@ class VersionManager:
 
     # can throw subprocess.CalledProcessError, FileNotFoundError, Exception
     def _git_update(self):
-        if len(self.increment_tags) > 0 and self.create_git_tag:
-            self.git_tag = f'{self.git_tag_prefix}{self.version_string}'
-            print(f'git tag: {self.git_tag}')
-            if self.append_version:
-                self.commit_message += f' {self.version_string}'
-            # self._commit_version_file(self.version_file, self.commit_message)
-            # self._update_git_tag(self.git_tag)
+        if len(self.increment_tags) > 0:
+            if self.commit_version_file:
+                if self.append_version:
+                    self.commit_message += f' {self.version_string}'
+                self._commit_version_file(self.version_file, self.commit_message)
+            if self.create_git_tag:
+                self.git_tag = f'{self.git_tag_prefix}{self.version_string}'
+                print(f'git tag: {self.git_tag}')
+                self._update_git_tag(self.git_tag)
 
     # can throw subprocess.CalledProcessError
     @staticmethod
