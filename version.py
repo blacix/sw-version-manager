@@ -35,6 +35,7 @@ class VersionManager:
         self.increment_tags = config_json["increment"]
         self.git_tag_prefix = config_json["git_tag_prefix"]
         self.create_git_tag = config_json["create_git_tag"]
+        self.version_output_file = config_json["version_output_file"]
         self.version_map = {self.version_tags[i]: 0 for i in range(0, len(self.version_tags))}
         print('config done')
         print(f'used by project: {self.version_tags}')
@@ -143,12 +144,9 @@ class VersionManager:
         else:
             print(f'tag {tag_name} already exists')
 
-    # TODO config
     def _create_output_files(self):
-        with open("version.txt", 'w') as file:
+        with open(self.version_output_file, 'w') as file:
             file.write(self.version_string)
-        with open("version_git_tag.txt", 'w') as file:
-            file.write(self.git_tag)
 
 
 if __name__ == '__main__':
