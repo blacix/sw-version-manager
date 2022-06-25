@@ -114,7 +114,7 @@ class VersionManager:
     # can throw subprocess.CalledProcessError
     @staticmethod
     def _commit_version_file(version_file: str, version_string: str):
-        subprocess.run(f'git add {version_file}', check=True)
+        subprocess.run(f'git add {version_file}', check=True, shell=True)
         # check if added
         # returns non-zero if there is something to commit
         proc = subprocess.run(f'git diff-index --cached --quiet HEAD', check=False)
