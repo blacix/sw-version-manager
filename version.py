@@ -52,10 +52,7 @@ class VersionManager:
             self.version_string = ".".join([str(self.version_map[item]) for item in self.version_tags])
             print(f'new version: {self.version_string}')
             self._git_update()
-
-            subprocess.run(f'echo {self.version_string} > version.txt', check=True, shell=True)
-            subprocess.run(f'echo {self.git_tag} > version_git_tag.txt', check=True, shell=True)
-
+            self._create_output_files()
         except (subprocess.CalledProcessError, FileNotFoundError, Exception) as e:
             print(e)
             return -1
@@ -143,6 +140,13 @@ class VersionManager:
             subprocess.run(f'git push origin --tags', check=True, shell=True)
         else:
             print(f'tag {tag_name} already exists')
+
+    # TODO config
+    def _create_output_files(self):
+        with open("version.txt", 'w') as file:
+            file.write(self.version_string)
+        with open("version_git_tag.txt", 'w') as file:
+            file.write(self.git_tag)
 
 
 if __name__ == '__main__':
