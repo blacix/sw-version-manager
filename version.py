@@ -22,8 +22,11 @@ class VersionManager:
         self.version_map = {}
         self.git_tag_prefix = ""
         self.create_git_tag = False
-        self.version_string = ""
         self.git_tag = ""
+        self.version_string = ""
+        self.version_output_file = None
+        self.commit_message = ""
+        self.append_version = True
 
     # can throw FileNotFoundError
     def _load_config(self):
@@ -35,7 +38,9 @@ class VersionManager:
         self.increment_tags = config_json["increment"]
         self.git_tag_prefix = config_json["git_tag_prefix"]
         self.create_git_tag = config_json["create_git_tag"]
-        self.version_output_file = config_json["version_output_file"]
+        self.version_output_file = config_json["output_file"]
+        self.commit_message = config_json["commit_message"]
+        self.append_version = config_json["append_version"]
         self.version_map = {self.version_tags[i]: 0 for i in range(0, len(self.version_tags))}
         print('config done')
         print(f'used by project: {self.version_tags}')
@@ -113,19 +118,23 @@ class VersionManager:
         if len(self.increment_tags) > 0 and self.create_git_tag:
             self.git_tag = f'{self.git_tag_prefix}{self.version_string}'
             print(f'git tag: {self.git_tag}')
-            self._commit_version_file(self.version_file, self.git_tag)
+            if self.append_version:
+                self.commit_message += f' {self.version_string}'
+            self._commit_version_file(self.version_file, self.commit_message)
             self._update_git_tag(self.git_tag)
 
     # can throw subprocess.CalledProcessError
     @staticmethod
-    def _commit_version_file(version_file: str, version_string: str):
+    def _commit_version_file(version_file: str, commit_message: str):
         subprocess.run(f'git add {version_file}', check=True, shell=True)
         # check if added
         # returns non-zero if there is something to commit
         proc = subprocess.run(f'git diff-index --cached --quiet HEAD', check=False, shell=True)
         if proc.returncode == 0:
             raise Exception(f'git add {version_file} failed')
-        subprocess.run(f'git commit -m "version: {version_string}"', check=True, shell=True)
+        commit_cmd = f'git commit -m "{commit_message}"'
+        # print(commit_cmd)
+        subprocess.run(commit_cmd, check=True, shell=True)
         subprocess.run(f'git push', check=True, shell=True)
 
     # can throw subprocess.CalledProcessError

@@ -10,7 +10,7 @@
   "language" : "C,",
   "create_git_tag" : true,
   "git_tag_prefix": "V",
-  "version_output_file" : "version.txt",
-  "commit message" : "version ",
-  "commit_append_version" : true
+  "output_file" : "version.txt",
+  "commit_message" : "version",
+  "append_version" : true
 }
