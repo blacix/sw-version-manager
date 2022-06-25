@@ -2,13 +2,9 @@ import os
 import sys
 import re
 import subprocess
+import json
 
-ARG_TAG_START_INDEX = 2
-
-VERSION_TAGS = ['APP_VERSION_MAJOR', 'APP_VERSION_MINOR', 'APP_VERSION_REV', 'APP_VERSION_PATCH',
-                'APP_VERSION_BUILD']
-
-APP_VERSION = {VERSION_TAGS[i]: 0 for i in range(0, len(VERSION_TAGS))}
+ARG_CNT = 3
 
 # [^\S] matches any char that is not a non-whitespace = any char that is whitespace
 C_DEFINE_PATTERN = r"(.*#define)([^\S]+)(\S+)([^\S]+)(\d+)([^\S]*\n)"
@@ -16,128 +12,133 @@ VERSION_TYPE_GROUP = 3
 VERSION_VALUE_GROUP = 5
 
 
-def _update_version_file(version_file, version_types: []):
-    print(f'updating {str(version_types)}')
-    new_lines = []
-    with open(version_file, 'r') as file:
-        for line in file:
-            new_line = ''
-            result = re.search(C_DEFINE_PATTERN, line)
-            if result is not None:
-                version_type = result[VERSION_TYPE_GROUP]
-                new_version = int(result[VERSION_VALUE_GROUP])
-                if version_type in version_types and version_type in VERSION_TAGS:
-                    new_version += 1
-                    # print(f"{version_type} {int(result[5]) + 1}")
-                    # replace \\4 and \\5 with a space and a tab and the new value
-                    new_line = re.sub(pattern=C_DEFINE_PATTERN,
-                                      repl=f"\\1\\2\\3 {new_version}\\6",
-                                      string=line)
+class VersionManager:
+    def __init__(self, sys_args: []):
+        self.sys_args = sys_args
+        self.version_file = None
+        self.config_json = None
+        self.VERSION_TAGS = []
+        self.INCREMENT = []
+        self.APP_VERSION = {}
+        self.git_tag_prefix = ""
+        self.create_git_tag = False
+        self.version_string = ""
+
+    # can throw FileNotFoundError
+    def _load_config(self):
+        self.version_file = sys.argv[1]
+        self.config_json = sys.argv[2]
+
+        config_json = json.load(open(self.config_json))
+        self.VERSION_TAGS = config_json["version_tags"]
+        self.INCREMENT = config_json["increment"]
+        self.git_tag_prefix = config_json["git_tag_prefix"]
+        self.create_git_tag = config_json["create_git_tag"]
+        self.APP_VERSION = {self.VERSION_TAGS[i]: 0 for i in range(0, len(self.VERSION_TAGS))}
+        print(f'used by project: {self.VERSION_TAGS}')
+        print(f'increment: {self.INCREMENT}')
+
+    # throws exception on error
+    def _check_version_tags(self):
+        # # contains only valid project tags
+        # filtered_project_versions = [item for item in
+        #                              filter(lambda x: x in self.VERSION_TAGS, project_versions)]
+
+        # check if every tag to be incremented are valid
+        filtered_versions_to_increment = [item for item in
+                                          self.INCREMENT if item in self.VERSION_TAGS]
+        # print(filtered_versions_to_increment)
+        if len(filtered_versions_to_increment) != len(self.INCREMENT):
+            invalid_versions = [item for item in
+                                self.INCREMENT if item not in self.VERSION_TAGS]
+            print(f'print invalid version type(s) to increment: {invalid_versions}')
+            raise Exception("invalid version type(s) found. Check your config!")
+
+    def execute(self):
+        if len(self.sys_args) < ARG_CNT:
+            print(f'usage: {self.sys_args[0]} version_file_path')
+            return -1
+        try:
+            self._load_config()
+            self._check_version_tags()
+            self._update_version_file()
+
+            # create version string
+            # iterate through VERSION_TAGS so the order will be correct
+            self.version_string = ".".join([str(self.APP_VERSION[item]) for item in self.VERSION_TAGS])
+            print(f'new version: {self.version_string}')
+            self._git_update()
+        except (subprocess.CalledProcessError, FileNotFoundError, Exception) as e:
+            print(e)
+            return -1
+        return 0
+
+    # TODO throw exception
+    def _update_version_file(self):
+        print(f'updating {str(self.INCREMENT)}')
+        new_lines = []
+        with open(self.version_file, 'r') as file:
+            for line in file:
+                new_line = ''
+                result = re.search(C_DEFINE_PATTERN, line)
+                if result is not None:
+                    version_type = result[VERSION_TYPE_GROUP]
+                    new_version = int(result[VERSION_VALUE_GROUP])
+                    if version_type in self.INCREMENT and version_type in self.VERSION_TAGS:
+                        new_version += 1
+                        # print(f"{version_type} {int(result[5]) + 1}")
+                        # replace \\4 and \\5 with a space and a tab and the new value
+                        new_line = re.sub(pattern=C_DEFINE_PATTERN,
+                                          repl=f"\\1\\2\\3 {new_version}\\6",
+                                          string=line)
+                    else:
+                        new_line = line
+                    # update version object
+                    self.APP_VERSION[version_type] = new_version
+                    print(new_line.strip())
                 else:
                     new_line = line
-                # update version object
-                APP_VERSION[version_type] = new_version
-                print(new_line.strip())
-            else:
-                new_line = line
-            new_lines.append(new_line)
+                new_lines.append(new_line)
 
-    if len(version_types) > 0:
-        with open(version_file, 'w') as file:
-            file.writelines(new_lines)
+        if len(self.INCREMENT) > 0:
+            with open(self.version_file, 'w') as file:
+                file.writelines(new_lines)
 
+    # can throw subprocess.CalledProcessError, FileNotFoundError, Exception
+    def _git_update(self):
+        if len(self.INCREMENT) > 0 and self.create_git_tag:
+            git_tag = f'{self.git_tag_prefix}{self.version_string}'
+            print(f'git tag: {self.git_tag_prefix}{self.version_string}')
+            self.commit_version_file(self.version_file, git_tag)
+            self.update_git_tag(git_tag)
 
-# can throw subprocess.CalledProcessError
-def commit_version_file(version_file: str, version_string: str):
-    subprocess.run(f'git add {version_file}', check=True)
-    # check if added
-    # returns non-zero if there is something to commit
-    proc = subprocess.run(f'git diff-index --cached --quiet HEAD', check=False)
-    if proc.returncode == 0:
-        raise Exception(f'git add {version_file} failed')
-    subprocess.run(f'git commit -m "version: {version_string}"', check=True)
-    subprocess.run(f'git push', check=True)
+    # can throw subprocess.CalledProcessError
+    @staticmethod
+    def commit_version_file(version_file: str, version_string: str):
+        subprocess.run(f'git add {version_file}', check=True)
+        # check if added
+        # returns non-zero if there is something to commit
+        proc = subprocess.run(f'git diff-index --cached --quiet HEAD', check=False)
+        if proc.returncode == 0:
+            raise Exception(f'git add {version_file} failed')
+        subprocess.run(f'git commit -m "version: {version_string}"', check=True)
+        subprocess.run(f'git push', check=True)
 
-
-# can throw subprocess.CalledProcessError
-def update_git_tag(tag_name):
-    print(tag_name)
-    # proc = subprocess.Popen('git tag', stdout=subprocess.PIPE)
-    # output = proc.stdout.readlines()
-    proc = subprocess.run('git tag', check=True, capture_output=True)
-    output = proc.stdout
-    # print(output)
-    if bytes(f'{tag_name}\n', 'utf-8') not in output:
-        subprocess.run(f'git tag {tag_name}', check=True)
-        subprocess.run(f'git push origin {tag_name}', check=True)
-    else:
-        print(f'tag {tag_name} already exists')
-
-
-# can throw subprocess.CalledProcessError
-def update_versions(sys_args: [], git_tag_prefix: str, project_versions: []):
-    if len(sys_args) < ARG_TAG_START_INDEX:
-        print(f'usage: {sys_args[0]} version.h [version_type1 ... version_typen]')
-        return -1
-
-    version_file = sys.argv[1]
-
-    versions_to_increment = sys.argv[ARG_TAG_START_INDEX:len(sys.argv)]
-    print(f'used by project: {project_versions}')
-    print(f'increment: {versions_to_increment}')
-
-    # contains only valid project tags
-    filtered_project_versions = [item for item in
-                                 filter(lambda x: x in VERSION_TAGS, project_versions)]
-    # print(f'used by project: {filtered_project_versions}')
-    # check if every tag used by the project are valid
-    if len(filtered_project_versions) != len(project_versions):
-        invalid_versions = [item for item in
-                            filter(lambda x: x not in VERSION_TAGS, project_versions)]
-        print(f'invalid project version type(s): {invalid_versions}')
-        return -1
-
-    # check if every tag to be incremented are valid
-    # contains versions valid for the project only, that is, listed in filtered_project_versions
-    filtered_versions_to_increment = [item for item in
-                                      versions_to_increment if item in filtered_project_versions]
-    # print(filtered_versions_to_increment)
-    if len(filtered_versions_to_increment) != len(versions_to_increment):
-        invalid_versions = [item for item in
-                            versions_to_increment if item not in filtered_project_versions]
-        print(f'print invalid version type(s) to increment: {invalid_versions}')
-        return -1
-
-    filtered_project_versions_to_increment = [item for item in filtered_versions_to_increment if
-                                              item in filtered_project_versions]
-    print(filtered_versions_to_increment)
-    print(filtered_project_versions_to_increment)
-    if len(filtered_project_versions_to_increment) != len(filtered_versions_to_increment):
-        invalid_versions = [item for item in filtered_versions_to_increment if
-                            item not in filtered_project_versions_to_increment]
-        print(f'version type(s) to increment not used by the project {invalid_versions}')
-        return -1
-
-    _update_version_file(version_file, versions_to_increment)
-
-    # iterate through VERSION_TAGS so the order will be correct
-    version_string = ".".join([str(APP_VERSION[item]) for item in
-                               filter(lambda x: x in VERSION_TAGS, project_versions)])
-
-    print(f'new version: {version_string}')
-
-    if len(versions_to_increment) > 0:
-        git_tag = f'{git_tag_prefix}{version_string}'
-        print(f'git tag: {git_tag_prefix}{version_string}')
-        # try:
-        #     commit_version_file(version_file, git_tag)
-        #     update_git_tag(git_tag)
-        # except (subprocess.CalledProcessError, FileNotFoundError, Exception) as e:
-        #     print(e)
-        #     return -1
-
-    return 0
+    # can throw subprocess.CalledProcessError
+    @staticmethod
+    def update_git_tag(tag_name):
+        print(tag_name)
+        # proc = subprocess.Popen('git tag', stdout=subprocess.PIPE)
+        # output = proc.stdout.readlines()
+        proc = subprocess.run('git tag', check=True, capture_output=True)
+        output = proc.stdout
+        # print(output)
+        if bytes(f'{tag_name}\n', 'utf-8') not in output:
+            subprocess.run(f'git tag {tag_name}', check=True)
+            subprocess.run(f'git push origin {tag_name}', check=True)
+        else:
+            print(f'tag {tag_name} already exists')
 
 
 if __name__ == '__main__':
-    sys.exit(update_versions(sys.argv, 'V', ['APP_VERSION_MAJOR', 'APP_VERSION_MINOR', 'APP_VERSION_PATCH']))
+    sys.exit(VersionManager(sys.argv).execute())
