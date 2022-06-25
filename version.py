@@ -109,7 +109,7 @@ class VersionManager:
     def _git_update(self):
         if len(self.increment_tags) > 0 and self.create_git_tag:
             self.git_tag = f'{self.git_tag_prefix}{self.version_string}'
-            print(f'git tag: self.git_tag')
+            print(f'git tag: {self.git_tag}')
             self._commit_version_file(self.version_file, self.git_tag)
             self._update_git_tag(self.git_tag)
 
