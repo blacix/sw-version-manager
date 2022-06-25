@@ -54,7 +54,7 @@ class VersionManager:
         # print('config done')
         # print(f'used by project: {self.version_tags}')
         # if not self.read_only:
-        #     print(f'increment: {self.increment_tags}')
+        #     print(increment: {self.increment_tags}')
 
     def execute(self):
         if len(self.sys_args) < ARG_CNT:
