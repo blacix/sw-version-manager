@@ -48,7 +48,7 @@ class VersionManager:
 
         self.read_only = '--read' in sys.argv
         self.update_version_file = '--noupdate' not in sys.argv and not self.read_only
-        self.commit_version_file = '--nocommit' not in sys.argv and not self.read_only
+        self.commit_version_file = '--nocommit' not in sys.argv and self.update_version_file and not self.read_only
         self.create_git_tag = '--notag' not in sys.argv and not self.read_only
 
         # print('config done')
