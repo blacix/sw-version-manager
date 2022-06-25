@@ -47,10 +47,7 @@ class VersionManager:
         try:
             self._load_config()
             self._check_version_tags()
-            self._update_version_file()
-            # iterate through VERSION_TAGS so the order will be correct
-            self.version_string = ".".join([str(self.version_map[item]) for item in self.version_tags])
-            print(f'new version: {self.version_string}')
+            self._update_versions()
             self._git_update()
             self._create_output_files()
         except (subprocess.CalledProcessError, FileNotFoundError, Exception) as e:
@@ -74,8 +71,7 @@ class VersionManager:
             print(f'print invalid version type(s) to increment: {invalid_versions}')
             raise Exception("invalid version type(s) found. Check your config!")
 
-    # TODO throw exception
-    def _update_version_file(self):
+    def _update_versions(self):
         print(f'updating {str(self.increment_tags)}')
         new_lines = []
         with open(self.version_file, 'r') as file:
@@ -104,6 +100,11 @@ class VersionManager:
         if len(self.increment_tags) > 0:
             with open(self.version_file, 'w') as file:
                 file.writelines(new_lines)
+
+    def create_version_string(self):
+        # iterate through VERSION_TAGS so the order will be correct
+        self.version_string = ".".join([str(self.version_map[item]) for item in self.version_tags])
+        print(f'new version: {self.version_string}')
 
     # can throw subprocess.CalledProcessError, FileNotFoundError, Exception
     def _git_update(self):
