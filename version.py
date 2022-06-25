@@ -28,13 +28,14 @@ class VersionManager:
     def _load_config(self):
         self.version_file = sys.argv[1]
         self.config_json = sys.argv[2]
-
+        print('loading config')
         config_json = json.load(open(self.config_json))
         self.VERSION_TAGS = config_json["version_tags"]
         self.INCREMENT = config_json["increment"]
         self.git_tag_prefix = config_json["git_tag_prefix"]
         self.create_git_tag = config_json["create_git_tag"]
         self.APP_VERSION = {self.VERSION_TAGS[i]: 0 for i in range(0, len(self.VERSION_TAGS))}
+        print('config done')
         print(f'used by project: {self.VERSION_TAGS}')
         print(f'increment: {self.INCREMENT}')
 
