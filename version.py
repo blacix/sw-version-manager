@@ -119,9 +119,9 @@ class VersionManager:
         # returns non-zero if there is something to commit
         proc = subprocess.run(f'git diff-index --cached --quiet HEAD', check=False)
         if proc.returncode == 0:
-            raise Exception(f'git add {version_file} failed')
-        subprocess.run(f'git commit -m "version: {version_string}"', check=True)
-        subprocess.run(f'git push', check=True)
+            raise Exception(f'/usr/bin/git add {version_file} failed')
+        subprocess.run(f'/usr/bin/git commit -m "version: {version_string}"', check=True)
+        subprocess.run(f'/usr/bin/git push', check=True)
 
     # can throw subprocess.CalledProcessError
     @staticmethod
@@ -129,12 +129,12 @@ class VersionManager:
         print(tag_name)
         # proc = subprocess.Popen('git tag', stdout=subprocess.PIPE)
         # output = proc.stdout.readlines()
-        proc = subprocess.run('git tag', check=True, capture_output=True)
+        proc = subprocess.run('/usr/bin/git tag', check=True, capture_output=True)
         output = proc.stdout
         # print(output)
         if bytes(f'{tag_name}\n', 'utf-8') not in output:
-            subprocess.run(f'git tag {tag_name}', check=True)
-            subprocess.run(f'git push origin {tag_name}', check=True)
+            subprocess.run(f'/usr/bin/git tag {tag_name}', check=True)
+            subprocess.run(f'/usr/bin/git push origin {tag_name}', check=True)
         else:
             print(f'tag {tag_name} already exists')
 
