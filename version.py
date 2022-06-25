@@ -140,7 +140,7 @@ class VersionManager:
         if len(self.increment_tags) > 0:
             if self.commit_version_file:
                 if self.append_version:
-                    self.commit_message += f' {self.version_string}'
+                    self.commit_message += f'{self.version_string}'
                 self._commit_version_file(self.version_file, self.commit_message)
             if self.create_git_tag:
                 self.git_tag = f'{self.git_tag_prefix}{self.version_string}'
