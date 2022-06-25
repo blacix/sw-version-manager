@@ -23,6 +23,7 @@ class VersionManager:
         self.git_tag_prefix = ""
         self.create_git_tag = False
         self.version_string = ""
+        self.git_tag = ""
 
     # can throw FileNotFoundError
     def _load_config(self):
@@ -49,9 +50,12 @@ class VersionManager:
             self._update_version_file()
             # iterate through VERSION_TAGS so the order will be correct
             self.version_string = ".".join([str(self.version_map[item]) for item in self.version_tags])
-            subprocess.run(f'echo {self.version_string} > version.txt', check=True, shell=True)
             print(f'new version: {self.version_string}')
             self._git_update()
+
+            subprocess.run(f'echo {self.version_string} > version.txt', check=True, shell=True)
+            subprocess.run(f'echo {self.git_tag} > version_git_tag.txt', check=True, shell=True)
+
         except (subprocess.CalledProcessError, FileNotFoundError, Exception) as e:
             print(e)
             return -1
@@ -107,10 +111,10 @@ class VersionManager:
     # can throw subprocess.CalledProcessError, FileNotFoundError, Exception
     def _git_update(self):
         if len(self.increment_tags) > 0 and self.create_git_tag:
-            git_tag = f'{self.git_tag_prefix}{self.version_string}'
+            self.git_tag = f'{self.git_tag_prefix}{self.version_string}'
             print(f'git tag: {self.git_tag_prefix}{self.version_string}')
             # self._commit_version_file(self.version_file, git_tag)
-            self._update_git_tag(git_tag)
+            self._update_git_tag(self.git_tag)
 
     # can throw subprocess.CalledProcessError
     @staticmethod
