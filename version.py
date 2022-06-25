@@ -52,7 +52,7 @@ class VersionManager:
         self.create_git_tag = '--notag' not in sys.argv and not self.read_only
 
         # print('config done')
-        print(f'used by project: {self.version_tags}')
+        # print(f'used by project: {self.version_tags}')
         if not self.read_only:
             print(f'increment: {self.increment_tags}')
 
@@ -67,9 +67,18 @@ class VersionManager:
             self._create_version_string()
             self._git_update()
             self._create_output_files()
-        except (subprocess.CalledProcessError, FileNotFoundError, Exception) as e:
-            print(e)
+        except subprocess.CalledProcessError as se:
+            print(se)
             return -1
+        except json.JSONDecodeError as je:
+            print('config JSON parse error!')
+            print(je)
+        except FileNotFoundError as fe:
+            print(fe)
+            return -1
+        except Exception as e:
+            print('unknown error!')
+            print(e)
         return 0
 
     # throws exception on error
