@@ -83,30 +83,33 @@ class VersionManager:
         new_lines = []
         with open(self.version_file, 'r') as file:
             for line in file:
-                new_line = ''
-                result = re.search(C_DEFINE_PATTERN, line)
-                if result is not None:
-                    version_type = result[VERSION_TYPE_GROUP]
-                    new_version = int(result[VERSION_VALUE_GROUP])
-                    if version_type in self.increment_tags and version_type in self.version_tags:
-                        new_version += 1
-                        # print(f"{version_type} {int(result[5]) + 1}")
-                        # replace \\4 and \\5 with a space and a tab and the new value
-                        new_line = re.sub(pattern=C_DEFINE_PATTERN,
-                                          repl=f"\\1\\2\\3 {new_version}\\6",
-                                          string=line)
-                    else:
-                        new_line = line
-                    # update version object
-                    self.version_map[version_type] = new_version
-                    print(new_line.strip())
-                else:
-                    new_line = line
+                new_line = self._process_c_line(line)
                 new_lines.append(new_line)
 
         if len(self.increment_tags) > 0:
             with open(self.version_file, 'w') as file:
                 file.writelines(new_lines)
+
+    def _process_c_line(self, line: str):
+        result = re.search(C_DEFINE_PATTERN, line)
+        if result is not None:
+            version_type = result[VERSION_TYPE_GROUP]
+            new_version = int(result[VERSION_VALUE_GROUP])
+            if version_type in self.increment_tags and version_type in self.version_tags:
+                new_version += 1
+                # print(f"{version_type} {int(result[5]) + 1}")
+                # replace \\4 and \\5 with a space and a tab and the new value
+                new_line = re.sub(pattern=C_DEFINE_PATTERN,
+                                  repl=f"\\1\\2\\3 {new_version}\\6",
+                                  string=line)
+            else:
+                new_line = line
+            # update version object
+            self.version_map[version_type] = new_version
+            print(new_line.strip())
+        else:
+            new_line = line
+        return new_line
 
     def create_version_string(self):
         # iterate through VERSION_TAGS so the order will be correct
@@ -120,8 +123,8 @@ class VersionManager:
             print(f'git tag: {self.git_tag}')
             if self.append_version:
                 self.commit_message += f' {self.version_string}'
-            self._commit_version_file(self.version_file, self.commit_message)
-            self._update_git_tag(self.git_tag)
+            # self._commit_version_file(self.version_file, self.commit_message)
+            # self._update_git_tag(self.git_tag)
 
     # can throw subprocess.CalledProcessError
     @staticmethod
