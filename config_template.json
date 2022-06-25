@@ -1,0 +1,13 @@
+{
+  "version_tags" : [
+    "APP_VERSION_MAJOR",
+    "APP_VERSION_MINOR",
+    "APP_VERSION_REV",
+    "APP_VERSION_PATCH",
+    "APP_VERSION_BUILD"
+  ],
+  "increment" : ["APP_VERSION_REV", "APP_VERSION_BUILD"],
+  "language" : "C,",
+  "create_git_tag" : false,
+  "git_tag_prefix": "V"
+}
