@@ -116,7 +116,8 @@ class VersionManager:
         if result is not None:
             version_type = result[VERSION_TYPE_GROUP]
             new_version = int(result[VERSION_VALUE_GROUP])
-            if version_type in self.increment_tags and version_type in self.version_tags:
+            # valid tags are already filtered
+            if version_type in self.increment_tags and not self.read_only:
                 new_version += 1
                 # print(f"{version_type} {int(result[5]) + 1}")
                 # replace \\4 and \\5 with a space and a tab and the new value
