@@ -63,7 +63,7 @@ class VersionManager:
             self._load_config()
             self._check_version_tags()
             self._update_versions()
-            self.create_version_string()
+            self._create_version_string()
             self._git_update()
             self._create_output_files()
         except (subprocess.CalledProcessError, FileNotFoundError, Exception) as e:
@@ -120,7 +120,7 @@ class VersionManager:
             new_line = line
         return new_line
 
-    def create_version_string(self):
+    def _create_version_string(self):
         # iterate through VERSION_TAGS so the order will be correct
         self.version_string = ".".join([str(self.version_map[item]) for item in self.version_tags])
         print(f'new version: {self.version_string}')
