@@ -15,7 +15,7 @@ Tested with Python 3.7.
 The script only works with C `#define` macros.
 e.g: `#define APP_VERSION_MAJOR 3`
 - create a preferably separate version file, e.g.: `version.h`
-- create a config file based on the template provied
+- create a config file (add it to your project's repository)
 - run the script with the desired arguments
 
 The script prints the version string to `stdout`, so the version string can be captured in a shell variable. See example scenario.
@@ -71,12 +71,16 @@ The default git tag is the version string, e.g.: `1.0.0`
 ## example scenario
 ```bash
 cd <your project>
+
+# pre-build step: update version file
 git clone https://github.com/blacix/sw-version-manager.git
-# update version file
-python sw-version-manager/version.py src/app_version.h version_config.json
-# perform a build
-# update git and capture the version string in a variable
-version=$(python sw-version-manager/version.py src/app_version.h version_config.json --git)
+python sw-version-manager/version.py app_version.h version_config.json
+
+# build project
+
+# post-build steps:
+# update project repo
+version=$(python sw-version-manager/version.py app_version.h version_config.json --git)
 # add the version to the build output file name
 mv <your_build_output> <your_build_output>_V$(version)
 ```
