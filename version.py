@@ -157,13 +157,13 @@ class VersionManager:
         subprocess.run(f'git add {version_file}', check=True, shell=True)
         # check if added
         # returns non-zero if there is something to commit
-        proc = subprocess.run(f'git diff-index --cached --quiet HEAD', check=False, shell=True)
+        proc = subprocess.run(f'git diff-index --cached --quiet HEAD', check=False, shell=True, stdout=subprocess.DEVNULL)
         if proc.returncode == 0:
             raise Exception(f'git add {version_file} failed')
         commit_cmd = f'git commit -m "{commit_message}"'
         # print(commit_cmd)
-        subprocess.run(commit_cmd, check=True, shell=True)
-        subprocess.run(f'git push', check=True, shell=True)
+        subprocess.run(commit_cmd, check=True, shell=True, stdout=subprocess.DEVNULL)
+        subprocess.run(f'git push', check=True, shell=True, stdout=subprocess.DEVNULL)
 
     # can throw subprocess.CalledProcessError
     @staticmethod
@@ -171,13 +171,13 @@ class VersionManager:
         print(tag_name)
         # proc = subprocess.Popen('git tag', stdout=subprocess.PIPE)
         # output = proc.stdout.readlines()
-        proc = subprocess.run('git tag', check=True, capture_output=True, shell=True)
+        proc = subprocess.run('git tag', check=True, capture_output=True, shell=True, stdout=subprocess.DEVNULL)
         output = proc.stdout
         # print(output)
         if bytes(f'{tag_name}\n', 'utf-8') not in output:
-            subprocess.run(f'git tag {tag_name}', check=True, shell=True)
+            subprocess.run(f'git tag {tag_name}', check=True, shell=True, stdout=subprocess.DEVNULL)
             # subprocess.run(f'git push origin tag {tag_name}', check=True, shell=True)
-            subprocess.run(f'git push origin --tags', check=True, shell=True)
+            subprocess.run(f'git push origin --tags', check=True, shell=True, stdout=subprocess.DEVNULL)
         else:
             print(f'tag {tag_name} already exists')
 
