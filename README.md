@@ -59,7 +59,7 @@ creates output file containing the version string
 #define APP_VERSION_BUILD 0
 #endif // _VERSION_H_
 ```
-- 
+
 - setup your config to match your version file.
 
 NOTE: all config parameters must be present, otherwise the script will fail. This is a TODO
