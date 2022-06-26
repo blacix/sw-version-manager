@@ -1,9 +1,10 @@
 # sw-version-manager
-Minimalist and portable py scripts for auto incrementing sw version in a C header.
+Minimalist and portable py scripts for automatically incrementing software version in a C header and update it in git as well.
+It uses only stock python libraries, like os, sys, subprocess.
 
-- updates the desired version type in the vearsion C header passed as argument
-- commits and pushes the version header file
-- creates a git tag with the version
+- updates the desired version type in the version file passed as argument
+- can commit and push the version file
+- can creates a git tag with the version
 
 # how to use
 The script only works with C `#define` macros.
@@ -11,6 +12,8 @@ e.g: `#define APP_VERSION_MAJOR 3`
 - create a preferably separate version file, e.g.: `version.h`
 - create a config file based on the template provied
 - run the script with the desired arguments
+
+The script prints the version string to `stdout`, so the version string can be captured in a shell variable. See example scenario.
 
 ## how to run
 `
@@ -58,6 +61,18 @@ The default git tag is the version string, e.g.: `1.0.0`
 - commit_message: commit message when commiting the version file. e.g.: `"version: "`
 - append_version: appends the version string to the commit message
 - version_tags: the tags present in your version file, e.g.: `version.h`
+
+## example scenario
+```bash
+cd <your project>
+git clone https://github.com/blacix/sw-version-manager.git
+# update version file
+python sw-version-manager/version.py src/app_version.h version_config.json
+# perform a build
+# update git and save the version
+version=$(python sw-version-manager/version.py src/app_version.h version_config.json)
+mv <your_build_output> <your_build_output>_V$(version)
+```
 
 
 ## extra args
