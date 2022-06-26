@@ -50,6 +50,9 @@ class VersionManager:
         # with no extra args, update with no git is the default
         self.increment_version = '--read' not in sys.argv and ('--update' in sys.argv or no_extra_args)
         self.update_version_file = ('--update' in sys.argv or no_extra_args) and self.increment_version
+        # --git only reads unless --update is provided
+        # in this case there are extra args,
+        # so increment_version is false because --update is not provided in this case
         self.commit_version_file = '--git' in sys.argv and '--nocommit' not in sys.argv
         self.create_git_tag = self.create_git_tag and '--git' in sys.argv and '--notag' not in sys.argv
         self.create_output_files = '--output' in sys.argv
