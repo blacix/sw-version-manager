@@ -6,6 +6,7 @@ Works with Python version 3.3 and above.
 
 Tested with Python 3.7.
 
+# what it can do
 - updates the desired version type in the version file passed as argument
 - can commit and push the version file
 - can creates a git tag with the version
