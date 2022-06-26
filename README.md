@@ -27,18 +27,27 @@ The script prints the version string to `stdout`, so the version string can be c
 `
 python version.py version_file_path config_file_path [--update | --git | --read | --output]
 `
-- 	--read: 
-		reads the version file
-		version file will not be updated if present
-- 	--update:
-		updates the version file
-		this is the default if no extra args are provided
-- 	--git:
-		creates and pushes a git tag if configured
-		commits and pushes the version file
-		version file update will only be updated if --update is present
-- 	--output:
-		creates output file containing the version string
+- --read: 
+reads the version file
+
+version file will not be updated if present
+
+- --update:
+updates the version file
+
+this is the default if no extra args are provided
+
+- --git:
+creates and pushes a git tag if configured
+
+commits and pushes the version file
+
+version file update will only be updated if --update is present
+
+- --output:
+creates output file containing the version string
+
+
 ## how to configure
 - add your version tags to `version_tags`
 - create a preferably separate version file. e.g `version.h`
