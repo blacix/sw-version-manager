@@ -1,4 +1,4 @@
-# sw-version-manager
+# sw-version-utility
 Minimalist and portable py script for automatically incrementing software version in a C header and update it in git as well.
 It uses only stock python libraries, like os, sys, subprocess.
 
