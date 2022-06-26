@@ -73,14 +73,14 @@ The default git tag is the version string, e.g.: `1.0.0`
 cd <your project>
 
 # pre-build step: update version file
-git clone https://github.com/blacix/sw-version-manager.git
-python sw-version-manager/version.py app_version.h version_config.json
+git clone https://github.com/blacix/sw-version-utility.git
+python sw-version-utility/version.py app_version.h version_config.json
 
 # build project
 
 # post-build steps:
 # update project repo
-version=$(python sw-version-manager/version.py app_version.h version_config.json --git)
+version=$(python sw-version-utility/version.py app_version.h version_config.json --git)
 # add the version to the build output file name
 mv <your_build_output> <your_build_output>_V$(version)
 ```
