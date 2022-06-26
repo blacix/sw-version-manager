@@ -78,7 +78,7 @@ class VersionManager:
         print('\t\tversion file update will only be updated if --update is present')
 
     def execute(self):
-        if len(sys.argv) < MIN_ARG_CNT or True:
+        if len(sys.argv) < MIN_ARG_CNT:
             self.print_usage()
             return -1
         try:
