@@ -22,7 +22,7 @@ e.g: `#define APP_VERSION_MAJOR 3`
 - create a config file (add it to your project's repository)
 - run the script with the desired arguments
 
-The script prints the version string to `stdout`, so the version string can be captured in a shell variable. See example scenario.
+The script prints the version string to `stdout`, so the version string can be captured in a shell variable. See example.
 
 ## how to run
 `
