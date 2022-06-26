@@ -15,6 +15,9 @@ ANDROID_DEFINE_PATTERN = r"([^\S]*)(\S+)(=)([^\S]*)(\d+)([^\S]*)(\n*)"
 ANDROID_VERSION_TYPE_GROUP = 2
 ANDROID_VERSION_VALUE_GROUP = 5
 
+C_REGEX = (C_DEFINE_PATTERN, C_VERSION_TYPE_GROUP, C_VERSION_VALUE_GROUP)
+ANDROID_REGEX = (ANDROID_DEFINE_PATTERN, ANDROID_VERSION_TYPE_GROUP, ANDROID_VERSION_VALUE_GROUP)
+
 
 class VersionManager:
     def __init__(self):
@@ -34,11 +37,14 @@ class VersionManager:
         self.commit_message = ""
         self.append_version = True
         self.create_output_files = False
+        self.parser_data = None
+        self._create_line = None
 
     # can throw FileNotFoundError
     def _load_config(self):
         self.version_file = sys.argv[1]
         self.config_json = sys.argv[2]
+        # load json config
         # print('loading config')
         config_json = json.load(open(self.config_json))
         self.version_tags = config_json["version_tags"]
@@ -50,6 +56,21 @@ class VersionManager:
         self.append_version = config_json["append_version"]
         self.version_map = {self.version_tags[i]: 0 for i in range(0, len(self.version_tags))}
 
+        # language setup
+        self.language = str(config_json["language"]).strip().lower()
+        if self.language == 'c':
+            self.parser_data = C_REGEX
+            self._create_line = self._create_c_line
+        elif self.language == 'cpp':
+            pass
+        elif self.language == 'android':
+            self.parser_data = ANDROID_REGEX
+            self._create_line = self._create_android_line
+        else:
+            raise Exception(f'unknown language: {self.language}')
+
+        # apply arguments
+        # Note: arguments can override settings
         no_extra_args = len(sys.argv) == MIN_ARG_CNT
         # with no extra args, update with no git is the default
         self.increment_version = '--read' not in sys.argv and ('--update' in sys.argv or no_extra_args)
@@ -130,58 +151,41 @@ class VersionManager:
         new_lines = []
         with open(self.version_file, 'r') as file:
             for line in file:
-                # new_line = self._process_c_line(line)
-                new_line = self._process_android_line(line)
-                new_lines.append(new_line)
+                version_type, version_value = self._parse_line(line, self.parser_data)
+                if version_type is not None and version_value is not None:
+                    if version_type in self.increment_tags and self.increment_version:
+                        version_value += 1
+                    self.version_map[version_type] = version_value
+                    new_line = self._create_line(line, version_value)
+                    new_lines.append(new_line)
+                else:
+                    new_lines.append(line)
 
         if len(self.increment_tags) > 0 and self.update_version_file:
             with open(self.version_file, 'w') as file:
                 file.writelines(new_lines)
 
-    def _process_c_line(self, line: str):
-        result = re.search(C_DEFINE_PATTERN, line)
+    @staticmethod
+    def _parse_line(line: str, parser_data: ()):
+        pattern, version_type_group, version_value_group = parser_data
+        result = re.search(pattern, line)
         if result is not None:
-            version_type = result[C_VERSION_TYPE_GROUP]
-            new_version = int(result[C_VERSION_VALUE_GROUP])
-            # valid tags are already filtered
-            if version_type in self.increment_tags and self.increment_version:
-                new_version += 1
-                # print(f"{version_type} {int(result[5]) + 1}")
-                # replace \\4 and \\5 with a space and a tab and the new value
-                new_line = re.sub(pattern=C_DEFINE_PATTERN,
-                                  repl=f"\\1\\2\\3 {new_version}\\6",
-                                  string=line)
-            else:
-                new_line = line
-            # update version object
-            self.version_map[version_type] = new_version
-            # print(new_line.strip())
-        else:
-            new_line = line
-        return new_line
+            version_type = result[version_type_group]
+            version_value = int(result[version_value_group])
+            return version_type, version_value
+        return None, None
 
-    def _process_android_line(self, line: str):
-        result = re.search(ANDROID_DEFINE_PATTERN, line)
-        if result is not None:
-            print(result)
-            version_type = result[ANDROID_VERSION_TYPE_GROUP]
-            new_version = int(result[ANDROID_VERSION_VALUE_GROUP])
-            # valid tags are already filtered
-            if version_type in self.increment_tags and self.increment_version:
-                new_version += 1
-                # print(f"{version_type} {int(result[5]) + 1}")
-                # replace \\4 and \\5 with a space and a tab and the new value
-                new_line = re.sub(pattern=ANDROID_DEFINE_PATTERN,
-                                  repl=f"\\1\\2\\3 {new_version}\n",
-                                  string=line)
-            else:
-                new_line = line
-            # update version object
-            self.version_map[version_type] = new_version
-            # print(new_line.strip())
-        else:
-            new_line = line
-        return new_line
+    @staticmethod
+    def _create_c_line(line: str, version: int):
+        return re.sub(pattern=C_DEFINE_PATTERN,
+                      repl=f'\\1\\2\\3 {version}\\6',
+                      string=line)
+
+    @staticmethod
+    def _create_android_line(line: str, version: int):
+        return re.sub(pattern=ANDROID_DEFINE_PATTERN,
+                      repl=f"\\1\\2\\3 {version}\n",
+                      string=line)
 
     def _create_version_string(self):
         # iterate through VERSION_TAGS so the order will be correct
