@@ -8,8 +8,12 @@ MIN_ARG_CNT = 3
 
 # [^\S] matches any char that is not a non-whitespace = any char that is whitespace
 C_DEFINE_PATTERN = r"(.*#define)([^\S]+)(\S+)([^\S]+)(\d+)([^\S]*\n)"
-VERSION_TYPE_GROUP = 3
-VERSION_VALUE_GROUP = 5
+C_VERSION_TYPE_GROUP = 3
+C_VERSION_VALUE_GROUP = 5
+
+ANDROID_DEFINE_PATTERN = r"([^\S]*)(\S+)(=)([^\S]*)(\d+)([^\S]*)(\n*)"
+ANDROID_VERSION_TYPE_GROUP = 2
+ANDROID_VERSION_VALUE_GROUP = 5
 
 
 class VersionManager:
@@ -126,7 +130,8 @@ class VersionManager:
         new_lines = []
         with open(self.version_file, 'r') as file:
             for line in file:
-                new_line = self._process_c_line(line)
+                # new_line = self._process_c_line(line)
+                new_line = self._process_android_line(line)
                 new_lines.append(new_line)
 
         if len(self.increment_tags) > 0 and self.update_version_file:
@@ -136,8 +141,8 @@ class VersionManager:
     def _process_c_line(self, line: str):
         result = re.search(C_DEFINE_PATTERN, line)
         if result is not None:
-            version_type = result[VERSION_TYPE_GROUP]
-            new_version = int(result[VERSION_VALUE_GROUP])
+            version_type = result[C_VERSION_TYPE_GROUP]
+            new_version = int(result[C_VERSION_VALUE_GROUP])
             # valid tags are already filtered
             if version_type in self.increment_tags and self.increment_version:
                 new_version += 1
@@ -145,6 +150,29 @@ class VersionManager:
                 # replace \\4 and \\5 with a space and a tab and the new value
                 new_line = re.sub(pattern=C_DEFINE_PATTERN,
                                   repl=f"\\1\\2\\3 {new_version}\\6",
+                                  string=line)
+            else:
+                new_line = line
+            # update version object
+            self.version_map[version_type] = new_version
+            # print(new_line.strip())
+        else:
+            new_line = line
+        return new_line
+
+    def _process_android_line(self, line: str):
+        result = re.search(ANDROID_DEFINE_PATTERN, line)
+        if result is not None:
+            print(result)
+            version_type = result[ANDROID_VERSION_TYPE_GROUP]
+            new_version = int(result[ANDROID_VERSION_VALUE_GROUP])
+            # valid tags are already filtered
+            if version_type in self.increment_tags and self.increment_version:
+                new_version += 1
+                # print(f"{version_type} {int(result[5]) + 1}")
+                # replace \\4 and \\5 with a space and a tab and the new value
+                new_line = re.sub(pattern=ANDROID_DEFINE_PATTERN,
+                                  repl=f"\\1\\2\\3 {new_version}\n",
                                   string=line)
             else:
                 new_line = line
