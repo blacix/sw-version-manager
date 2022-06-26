@@ -1,5 +1,5 @@
 # sw-version-utility
-Minimalist and portable py script for automatically incrementing software version in a C header file and update it in git as well.
+Minimalist, portable and not perfect py script for automatically incrementing software version in a C header file and update it in git as well.
 
 It might be useful for CI/CD.
 
