@@ -90,6 +90,7 @@ The default git tag is the version string, e.g.: `1.0.0`
 - output_file: if `--output` is provided as argument, the output file with this name, containing the version string is created
 - commit_message: commit message when commiting the version file. e.g.: `"version: "`
 - append_version: appends the version string to the commit message
+
 The output of this config is as follows:
 - version string: `1.0.24.111`
 - git tag:  `V1.0.24.111`
