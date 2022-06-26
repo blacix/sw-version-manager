@@ -76,7 +76,7 @@ python sw-version-manager/version.py src/app_version.h version_config.json
 # perform a build
 # update git and capture the version string in a variable
 version=$(python sw-version-manager/version.py src/app_version.h version_config.json --git)
-# use the version string
+# add the version to the build output file name
 mv <your_build_output> <your_build_output>_V$(version)
 ```
 
