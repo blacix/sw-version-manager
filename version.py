@@ -4,7 +4,7 @@ import re
 import subprocess
 import json
 
-ARG_CNT = 3
+MIN_ARG_CNT = 3
 
 # [^\S] matches any char that is not a non-whitespace = any char that is whitespace
 C_DEFINE_PATTERN = r"(.*#define)([^\S]+)(\S+)([^\S]+)(\d+)([^\S]*\n)"
@@ -13,8 +13,7 @@ VERSION_VALUE_GROUP = 5
 
 
 class VersionManager:
-    def __init__(self, sys_args: []):
-        self.sys_args = sys_args
+    def __init__(self):
         self.version_file = None
         self.config_json = None
         self.version_tags = []
@@ -47,8 +46,10 @@ class VersionManager:
         self.append_version = config_json["append_version"]
         self.version_map = {self.version_tags[i]: 0 for i in range(0, len(self.version_tags))}
 
-        self.increment_version = '--read' not in sys.argv and '--update' in sys.argv
-        self.update_version_file = '--update' in sys.argv and self.increment_version
+        no_extra_args = len(sys.argv) == MIN_ARG_CNT
+        # with no extra args, update with no git is the default
+        self.increment_version = '--read' not in sys.argv and ('--update' in sys.argv or no_extra_args)
+        self.update_version_file = ('--update' in sys.argv or no_extra_args) and self.increment_version
         self.commit_version_file = '--git' in sys.argv and '--nocommit' not in sys.argv
         self.create_git_tag = self.create_git_tag and '--git' in sys.argv and '--notag' not in sys.argv
         self.create_output_files = '--output' in sys.argv
@@ -59,8 +60,8 @@ class VersionManager:
         #     print(increment: {self.increment_tags}')
 
     def execute(self):
-        if len(self.sys_args) < ARG_CNT:
-            print(f'usage: {self.sys_args[0]} version_file_path')
+        if len(sys.argv) < MIN_ARG_CNT:
+            print(f'usage: {sys.argv} version_file_path')
             return -1
         try:
             self._load_config()
@@ -160,9 +161,9 @@ class VersionManager:
         if proc.returncode == 0:
             raise Exception(f'git add {version_file} failed')
         commit_cmd = f'git commit -m "{commit_message}"'
-        print(commit_cmd)
-        # subprocess.run(commit_cmd, check=True, shell=True)
-        # subprocess.run(f'git push', check=True, shell=True)
+        # print(commit_cmd)
+        subprocess.run(commit_cmd, check=True, shell=True)
+        subprocess.run(f'git push', check=True, shell=True)
 
     # can throw subprocess.CalledProcessError
     @staticmethod
@@ -187,4 +188,4 @@ class VersionManager:
 
 
 if __name__ == '__main__':
-    sys.exit(VersionManager(sys.argv).execute())
+    sys.exit(VersionManager().execute())
