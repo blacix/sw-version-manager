@@ -80,8 +80,9 @@ class VersionManager:
             print(fe)
             return -1
         except Exception as e:
-            print('unknown error!')
+            # print('unknown error!')
             print(e)
+            return -1
         return 0
 
     # throws exception on error
@@ -148,7 +149,7 @@ class VersionManager:
                 self._commit_version_file(self.version_file, self.commit_message)
             if self.create_git_tag:
                 self.git_tag = f'{self.git_tag_prefix}{self.version_string}'
-                print(f'git tag: {self.git_tag}')
+                # print(f'git tag: {self.git_tag}')
                 self._update_git_tag(self.git_tag)
 
     # can throw subprocess.CalledProcessError
@@ -162,24 +163,25 @@ class VersionManager:
             raise Exception(f'git add {version_file} failed')
         commit_cmd = f'git commit -m "{commit_message}"'
         # print(commit_cmd)
-        subprocess.run(commit_cmd, check=True, shell=True, stdout=subprocess.DEVNULL)
-        subprocess.run(f'git push', check=True, shell=True, stdout=subprocess.DEVNULL)
+        subprocess.run(commit_cmd, check=True, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        subprocess.run(f'git push', check=True, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
     # can throw subprocess.CalledProcessError
     @staticmethod
     def _update_git_tag(tag_name):
-        print(tag_name)
+        # print(tag_name)
         # proc = subprocess.Popen('git tag', stdout=subprocess.PIPE)
         # output = proc.stdout.readlines()
-        proc = subprocess.run('git tag', check=True, capture_output=True, shell=True, stdout=subprocess.DEVNULL)
-        output = proc.stdout
+
+        # proc = subprocess.run('git tag', check=True, capture_output=True, shell=True)
+        # output = proc.stdout
         # print(output)
-        if bytes(f'{tag_name}\n', 'utf-8') not in output:
-            subprocess.run(f'git tag {tag_name}', check=True, shell=True, stdout=subprocess.DEVNULL)
-            # subprocess.run(f'git push origin tag {tag_name}', check=True, shell=True)
-            subprocess.run(f'git push origin --tags', check=True, shell=True, stdout=subprocess.DEVNULL)
-        else:
-            print(f'tag {tag_name} already exists')
+        # if bytes(f'{tag_name}\n', 'utf-8') not in output:
+        subprocess.run(f'git tag {tag_name}', check=True, shell=True, stdout=subprocess.DEVNULL)
+        # subprocess.run(f'git push origin tag {tag_name}', check=True, shell=True)
+        subprocess.run(f'git push origin --tags', check=True, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        # else:
+        #     print(f'tag {tag_name} already exists')
 
     def _create_output_files(self):
         if self.create_output_files:
