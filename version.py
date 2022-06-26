@@ -111,7 +111,7 @@ class VersionManager:
         try:
             self._load_config()
             self._check_version_tags()
-            self._update_versions()
+            self._parse_version_file()
             self._create_version_string()
             self._git_update()
             self._create_output_files()
@@ -146,7 +146,7 @@ class VersionManager:
             print(f'print invalid version type(s) to increment: {invalid_versions}')
             raise Exception("invalid version type(s) found. Check your config!")
 
-    def _update_versions(self):
+    def _parse_version_file(self):
         # print(f'updating {str(self.increment_tags)}')
         new_lines = []
         with open(self.version_file, 'r') as file:
