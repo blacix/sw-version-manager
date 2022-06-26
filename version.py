@@ -22,7 +22,7 @@ class VersionManager:
         self.version_map = {}
         self.update_version_file = False
         self.commit_version_file = False
-        self.read_only = False
+        self.increment_version = False
         self.create_git_tag = False
         self.git_tag_prefix = ""
         self.git_tag = ""
@@ -47,10 +47,10 @@ class VersionManager:
         self.append_version = config_json["append_version"]
         self.version_map = {self.version_tags[i]: 0 for i in range(0, len(self.version_tags))}
 
-        self.read_only = '--read' in sys.argv
-        self.update_version_file = '--noupdate' not in sys.argv and not self.read_only
-        self.commit_version_file = '--nocommit' not in sys.argv and self.update_version_file and not self.read_only
-        self.create_git_tag = '--notag' not in sys.argv and not self.read_only
+        self.increment_version = '--read' not in sys.argv and '--update' in sys.argv
+        self.update_version_file = '--update' in sys.argv and self.increment_version
+        self.commit_version_file = '--git' in sys.argv and '--nocommit' not in sys.argv
+        self.create_git_tag = self.create_git_tag and '--git' in sys.argv and '--notag' not in sys.argv
         self.create_output_files = '--output' in sys.argv
 
         # print('config done')
@@ -117,7 +117,7 @@ class VersionManager:
             version_type = result[VERSION_TYPE_GROUP]
             new_version = int(result[VERSION_VALUE_GROUP])
             # valid tags are already filtered
-            if version_type in self.increment_tags and not self.read_only:
+            if version_type in self.increment_tags and self.increment_version:
                 new_version += 1
                 # print(f"{version_type} {int(result[5]) + 1}")
                 # replace \\4 and \\5 with a space and a tab and the new value
@@ -160,9 +160,9 @@ class VersionManager:
         if proc.returncode == 0:
             raise Exception(f'git add {version_file} failed')
         commit_cmd = f'git commit -m "{commit_message}"'
-        # print(commit_cmd)
-        subprocess.run(commit_cmd, check=True, shell=True)
-        subprocess.run(f'git push', check=True, shell=True)
+        print(commit_cmd)
+        # subprocess.run(commit_cmd, check=True, shell=True)
+        # subprocess.run(f'git push', check=True, shell=True)
 
     # can throw subprocess.CalledProcessError
     @staticmethod
