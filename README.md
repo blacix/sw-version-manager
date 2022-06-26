@@ -96,7 +96,13 @@ The output of this config is as follows:
 - git tag:  `V1.0.24.111`
 - commit message:  `version 1.0.24.111`
 
-## example scenario
+
+## extra args
+- --notag: git tag will not be created
+- --nocommit: version file will not be commited
+
+
+# example
 ```bash
 cd <your project>
 
@@ -113,7 +119,3 @@ version=$(python sw-version-utility/version.py app_version.h version_config.json
 mv <your_build_output> <your_build_output>_V$(version)
 ```
 
-
-## extra args
-- --notag: git tag will not be created
-- --nocommit: version file will not be commited
