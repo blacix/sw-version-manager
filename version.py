@@ -59,9 +59,23 @@ class VersionManager:
         # if not self.read_only:
         #     print(increment: {self.increment_tags}')
 
+    @staticmethod
+    def print_usage():
+        print(f'usage:')
+        print(f'{sys.argv[0]} version_file_path config_file_path [--update | --git | --read]')
+        print('\t--update:')
+        print('\t\tupdates the version file')
+        print('\t\tthis is the default if no extra args are provided')
+        print('\t--git:')
+        print('\t\tcreates and pushes a git tag if configured')
+        print('\t\tcommits and pushes the version file')
+        print('\t--read: ')
+        print('\t\treads the version file')
+        print('\t\tno update will be performed if present')
+
     def execute(self):
         if len(sys.argv) < MIN_ARG_CNT:
-            print(f'usage: {sys.argv} version_file_path')
+            self.print_usage()
             return -1
         try:
             self._load_config()
@@ -71,17 +85,17 @@ class VersionManager:
             self._git_update()
             self._create_output_files()
         except subprocess.CalledProcessError as se:
-            print(se)
+            print(se, file=sys.stderr)
             return -1
         except json.JSONDecodeError as je:
-            print('config JSON parse error!')
-            print(je)
+            print('config JSON parse error!', file=sys.stderr)
+            print(je, file=sys.stderr)
         except FileNotFoundError as fe:
-            print(fe)
+            print(fe, file=sys.stderr)
             return -1
         except Exception as e:
             # print('unknown error!')
-            print(e)
+            print(e, file=sys.stderr)
             return -1
         return 0
 
@@ -158,7 +172,8 @@ class VersionManager:
         subprocess.run(f'git add {version_file}', check=True, shell=True)
         # check if added
         # returns non-zero if there is something to commit
-        proc = subprocess.run(f'git diff-index --cached --quiet HEAD', check=False, shell=True, stdout=subprocess.DEVNULL)
+        proc = subprocess.run(f'git diff-index --cached --quiet HEAD', check=False, shell=True,
+                              stdout=subprocess.DEVNULL)
         if proc.returncode == 0:
             raise Exception(f'git add {version_file} failed')
         commit_cmd = f'git commit -m "{commit_message}"'
@@ -179,7 +194,8 @@ class VersionManager:
         # if bytes(f'{tag_name}\n', 'utf-8') not in output:
         subprocess.run(f'git tag {tag_name}', check=True, shell=True, stdout=subprocess.DEVNULL)
         # subprocess.run(f'git push origin tag {tag_name}', check=True, shell=True)
-        subprocess.run(f'git push origin --tags', check=True, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        subprocess.run(f'git push origin --tags', check=True, shell=True, stdout=subprocess.DEVNULL,
+                       stderr=subprocess.DEVNULL)
         # else:
         #     print(f'tag {tag_name} already exists')
 
