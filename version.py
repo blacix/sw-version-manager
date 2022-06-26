@@ -11,7 +11,7 @@ C_DEFINE_PATTERN = r"(.*#define)([^\S]+)(\S+)([^\S]+)(\d+)([^\S]*\n)"
 C_VERSION_TYPE_GROUP = 3
 C_VERSION_VALUE_GROUP = 5
 
-ANDROID_DEFINE_PATTERN = r"([^\S]*)(\S+)(=)([^\S]*)(\d+)([^\S]*)(\n*)"
+ANDROID_DEFINE_PATTERN = r"([^\S]*)(\S+)(=)([^\S]*)(\d+)([^\S]*\n)"
 ANDROID_VERSION_TYPE_GROUP = 2
 ANDROID_VERSION_VALUE_GROUP = 5
 
@@ -175,16 +175,18 @@ class VersionManager:
             return version_type, version_value
         return None, None
 
+    # TODO does not work with inline comments
     @staticmethod
     def _create_c_line(line: str, version: int):
         return re.sub(pattern=C_DEFINE_PATTERN,
-                      repl=f'\\1\\2\\3 {version}\\6',
+                      repl=fr'\g<1>\g<2>\g<3>\g<4>{version}\g<6>',
                       string=line)
 
+    # TODO put back last groups of regex instead of '\n'
     @staticmethod
     def _create_android_line(line: str, version: int):
         return re.sub(pattern=ANDROID_DEFINE_PATTERN,
-                      repl=f"\\1\\2\\3 {version}\n",
+                      repl=fr'\g<1>\g<2>\g<3>{str(version)}\n',
                       string=line)
 
     def _create_version_string(self):
