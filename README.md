@@ -39,6 +39,7 @@ python version.py version_file_path config_file_path [--update | --git | --read 
 ## how to configure
 - add your version tags to `version_tags`
 - create a preferably separate version file. e.g `version.h`
+- NOTE: all config parameters must be present, otherwise the script will fail. This is a TODO
 ```json
 {
   "version_tags" : [
