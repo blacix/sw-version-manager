@@ -62,7 +62,7 @@ class VersionManager:
     @staticmethod
     def print_usage():
         print(f'usage:')
-        print(f'{sys.argv[0]} version_file_path config_file_path [--update | --git | --read]')
+        print(f'python {os.path.basename(sys.argv[0])} version_file_path config_file_path [--update | --git | --read]')
         print('\t--update:')
         print('\t\tupdates the version file')
         print('\t\tthis is the default if no extra args are provided')
