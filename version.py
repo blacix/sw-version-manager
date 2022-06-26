@@ -146,6 +146,7 @@ class VersionManager:
             print(f'print invalid version type(s) to increment: {invalid_versions}')
             raise Exception("invalid version type(s) found. Check your config!")
 
+    # TODO error when valid version tag is missing from the version file
     def _parse_version_file(self):
         # print(f'updating {str(self.increment_tags)}')
         new_lines = []
