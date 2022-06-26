@@ -63,18 +63,19 @@ class VersionManager:
     def print_usage():
         print(f'usage:')
         print(f'python {os.path.basename(sys.argv[0])} version_file_path config_file_path [--update | --git | --read]')
+        print('\t--read: ')
+        print('\t\treads the version file')
+        print('\t\tversion file will not be updated if present')
         print('\t--update:')
         print('\t\tupdates the version file')
         print('\t\tthis is the default if no extra args are provided')
         print('\t--git:')
         print('\t\tcreates and pushes a git tag if configured')
         print('\t\tcommits and pushes the version file')
-        print('\t--read: ')
-        print('\t\treads the version file')
-        print('\t\tno update will be performed if present')
+        print('\t\tversion file update will only be updated if --update is present')
 
     def execute(self):
-        if len(sys.argv) < MIN_ARG_CNT:
+        if len(sys.argv) < MIN_ARG_CNT or True:
             self.print_usage()
             return -1
         try:
