@@ -18,15 +18,6 @@ Tested with Python 3.7.
 The script only works with C `#define` macros.
 e.g: `#define APP_VERSION_MAJOR 3`
 - create a preferably separate version file, e.g.: `version.h`
-```C
-#ifndef _VERSION_H_
-#define _VERSION_H_
-#define APP_VERSION_MAJOR 0
-#define APP_VERSION_MINOR 0
-#define APP_VERSION_PATCH 0
-#define APP_VERSION_BUILD 0
-#endif // _VERSION_H_
-```
 - create a config file (add it to your project's repository)
 - run the script with the desired arguments
 
@@ -58,6 +49,16 @@ creates output file containing the version string
 
 
 ## how to configure
+- setup your version file
+```C
+#ifndef _VERSION_H_
+#define _VERSION_H_
+#define APP_VERSION_MAJOR 0
+#define APP_VERSION_MINOR 0
+#define APP_VERSION_PATCH 0
+#define APP_VERSION_BUILD 0
+#endif // _VERSION_H_
+```
 - add your version tags to `version_tags`
 - create a preferably separate version file. e.g `version.h`
 - NOTE: all config parameters must be present, otherwise the script will fail. This is a TODO
@@ -66,11 +67,10 @@ creates output file containing the version string
   "version_tags" : [
     "APP_VERSION_MAJOR",
     "APP_VERSION_MINOR",
-    "APP_VERSION_REV",
     "APP_VERSION_PATCH",
     "APP_VERSION_BUILD"
   ],
-  "increment" : ["APP_VERSION_REV", "APP_VERSION_BUILD"],
+  "increment" : ["APP_VERSION_PATCH", "APP_VERSION_BUILD"],
   "language" : "C,",
   "create_git_tag" : true,
   "git_tag_prefix": "V",
