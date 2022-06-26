@@ -74,8 +74,9 @@ git clone https://github.com/blacix/sw-version-manager.git
 # update version file
 python sw-version-manager/version.py src/app_version.h version_config.json
 # perform a build
-# update git and save the version
+# update git and capture the version string in a variable
 version=$(python sw-version-manager/version.py src/app_version.h version_config.json --git)
+# use the version string
 mv <your_build_output> <your_build_output>_V$(version)
 ```
 
