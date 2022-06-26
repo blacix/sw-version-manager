@@ -65,7 +65,7 @@ class VersionManager:
     @staticmethod
     def print_usage():
         print(f'usage:')
-        print(f'python {os.path.basename(sys.argv[0])} version_file_path config_file_path [--update | --git | --read]')
+        print(f'python {os.path.basename(sys.argv[0])} version_file_path config_file_path [--update | --git | --read | --output]')
         print('\t--read: ')
         print('\t\treads the version file')
         print('\t\tversion file will not be updated if present')
@@ -76,6 +76,8 @@ class VersionManager:
         print('\t\tcreates and pushes a git tag if configured')
         print('\t\tcommits and pushes the version file')
         print('\t\tversion file update will only be updated if --update is present')
+        print('\t--output:')
+        print('\t\tcreates output file containing the version string')
 
     def execute(self):
         if len(sys.argv) < MIN_ARG_CNT:
