@@ -49,7 +49,7 @@ creates output file containing the version string
 
 
 ## how to configure
-- setup your version file
+- setup your version file, e.g `version.h`
 ```C
 #ifndef _VERSION_H_
 #define _VERSION_H_
@@ -59,9 +59,11 @@ creates output file containing the version string
 #define APP_VERSION_BUILD 0
 #endif // _VERSION_H_
 ```
-- add your version tags to `version_tags`
-- create a preferably separate version file. e.g `version.h`
-- NOTE: all config parameters must be present, otherwise the script will fail. This is a TODO
+- 
+- setup your config to match your version file.
+
+NOTE: all config parameters must be present, otherwise the script will fail. This is a TODO
+
 ```json
 {
   "version_tags" : [
@@ -79,6 +81,7 @@ creates output file containing the version string
   "append_version" : true
 }
 ```
+- version_tags: the macro definitionss present in your version file. dd the name of your macro definitions to `version_tags`.
 - increment: version tags to be incremented in the version file.
 - language: not implemented yet, only works with C `#define` macros
 - create_git_tag: git tag is created and pushed to origin if true
@@ -87,7 +90,7 @@ The default git tag is the version string, e.g.: `1.0.0`
 - output_file: if `--output` is provided as argument, the output file with this name, containing the version string is created
 - commit_message: commit message when commiting the version file. e.g.: `"version: "`
 - append_version: appends the version string to the commit message
-- version_tags: the tags present in your version file, e.g.: `version.h`
+- 
 
 ## example scenario
 ```bash
