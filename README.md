@@ -104,6 +104,8 @@ The output of this config is as follows:
 
 
 # example
+In shell or a Jenkins job:
+
 ```bash
 cd <your project>
 
