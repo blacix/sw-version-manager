@@ -49,7 +49,6 @@ class VersionManager:
         config_json = json.load(open(self.config_json))
         self.version_tags = config_json["version_tags"]
         self.increment_tags = config_json["increment"]
-        self.create_git_tag = config_json["create_git_tag"]
         self.git_tag_prefix = config_json["git_tag_prefix"]
         self.version_output_file = config_json["output_file"]
         self.commit_message = config_json["commit_message"]
@@ -74,7 +73,7 @@ class VersionManager:
         self.increment_version = '--update' in sys.argv
         self.update_version_file = self.increment_version
         self.commit_version_file = '--commit' in sys.argv
-        self.create_git_tag = self.create_git_tag or '--tag' in sys.argv
+        self.create_git_tag = '--tag' in sys.argv
         self.create_output_files = '--output' in sys.argv
 
     @staticmethod

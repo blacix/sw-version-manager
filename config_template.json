@@ -8,7 +8,6 @@
   ],
   "increment" : ["APP_VERSION_REV", "APP_VERSION_BUILD"],
   "language" : "C",
-  "create_git_tag" : true,
   "git_tag_prefix": "V",
   "output_file" : "version.txt",
   "commit_message" : "version ",
