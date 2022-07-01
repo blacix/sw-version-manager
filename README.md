@@ -28,7 +28,7 @@ The script prints the version string to `stdout`, so the version string can be c
 `
 python version.py version_file_path config_file_path [--update | --git | --read | --output]
 `
-- --read: 
+- when no extra args provided, it reads the version file
 reads the version file
 
 version file will not be updated if present
@@ -38,12 +38,14 @@ updates the version file
 
 this is the default if no extra args are provided
 
-- --git:
-creates and pushes a git tag if configured
+- --commit
+commits the version file
 
-commits and pushes the version file
+- --tag
+git tag is created with the version
 
-version file update will only be updated if --update is present
+- --git
+equals to --tag --commit
 
 - --output:
 creates output file containing the version string
@@ -85,7 +87,6 @@ NOTE: all config parameters must be present, otherwise the script will fail. Thi
 - version_tags: the macro definitionss present in your version file. dd the name of your macro definitions to `version_tags`.
 - increment: version tags to be incremented in the version file.
 - language: not implemented yet, only works with C `#define` macros
-- create_git_tag: git tag is created and pushed to origin if true
 The default git tag is the version string, e.g.: `1.0.0`
 - git_tag_prefix: adds this prefix to the git tag, e.g.: `V1.0.0`
 - output_file: if `--output` is provided as argument, the output file with this name, containing the version string is created
