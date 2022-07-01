@@ -26,7 +26,7 @@ The script prints the version string to `stdout`, so the version string can be c
 
 ## how to run
 `
-python version.py version_file_path config_file_path [--update | --git | --read | --output]
+python version.py version_file_path config_file_path [--update | --git | --output]
 `
 - when no extra args provided, it reads the version file
 reads the version file
