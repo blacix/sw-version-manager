@@ -7,7 +7,6 @@
   ],
   "increment" : ["VERSION_CODE", "BUILD_NUMBER"],
   "language" : "android",
-  "create_git_tag" : true,
   "git_tag_prefix": "V",
   "output_file" : "version.txt",
   "commit_message" : "version ",
