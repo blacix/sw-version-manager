@@ -77,7 +77,6 @@ NOTE: all config parameters must be present, otherwise the script will fail. Thi
   ],
   "increment" : ["APP_VERSION_PATCH", "APP_VERSION_BUILD"],
   "language" : "C",
-  "create_git_tag" : true,
   "git_tag_prefix": "V",
   "output_file" : "version.txt",
   "commit_message" : "version ",
