@@ -71,21 +71,11 @@ class VersionManager:
 
         # apply arguments
         # Note: arguments can override settings
-        no_extra_args = len(sys.argv) == MIN_ARG_CNT
-        # with no extra args, update with no git is the default
-        self.increment_version = '--read' not in sys.argv and ('--update' in sys.argv or no_extra_args)
-        self.update_version_file = ('--update' in sys.argv or no_extra_args) and self.increment_version
-        # --git only reads unless --update is provided
-        # in this case there are extra args,
-        # so increment_version is false because --update is not provided in this case
-        self.commit_version_file = '--git' in sys.argv and '--nocommit' not in sys.argv
-        self.create_git_tag = self.create_git_tag and '--git' in sys.argv and '--notag' not in sys.argv
+        self.increment_version = '--update' in sys.argv
+        self.update_version_file = self.increment_version
+        self.commit_version_file = '--commit' in sys.argv
+        self.create_git_tag = self.create_git_tag or '--tag' in sys.argv
         self.create_output_files = '--output' in sys.argv
-
-        # print('config done')
-        # print(f'used by project: {self.version_tags}')
-        # if not self.read_only:
-        #     print(increment: {self.increment_tags}')
 
     @staticmethod
     def print_usage():
