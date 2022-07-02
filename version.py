@@ -35,6 +35,7 @@ class VersionManager:
         self.git_tag = ""
         self.version_string = ""
         self.version_output_file = None
+        self.commit_message_base = ""
         self.commit_message = ""
         self.append_version = True
         self.create_output_files = False
@@ -54,7 +55,7 @@ class VersionManager:
         self.increment_tags = config_json["increment"]
         self.git_tag_prefix = config_json["git_tag_prefix"]
         self.version_output_file = config_json["output_file"]
-        self.commit_message = config_json["commit_message"]
+        self.commit_message_base = config_json["commit_message"]
         self.append_version = config_json["append_version"]
         self.version_map = {self.version_tags[i]: 0 for i in range(0, len(self.version_tags))}
 
@@ -208,7 +209,7 @@ class VersionManager:
         self.version_string = ".".join([str(self.version_map[item]) for item in self.version_tags])
         self.git_tag = f'{self.git_tag_prefix}{self.version_string}'
         if self.append_version:
-            self.commit_message += f'{self.version_string}'
+            self.commit_message = f'{self.commit_message_base}{self.version_string}'
 
     def _check_git_tag(self):
         if self.check_git_tag:
