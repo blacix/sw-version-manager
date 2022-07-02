@@ -84,7 +84,7 @@ class VersionManager:
     @staticmethod
     def print_usage():
         print(f'usage:')
-        print(f'python {os.path.basename(sys.argv[0])} version_file_path config_file_path [--update | --git | --read | --output]')
+        print(f'python {os.path.basename(sys.argv[0])} version_file_path config_file_path [--update | --git | --output]')
         print('\t--read: ')
         print('\t\treads the version file')
         print('\t\tversion file will not be updated if present')
