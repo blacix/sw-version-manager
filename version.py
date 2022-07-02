@@ -107,13 +107,7 @@ class VersionManager:
             self._parse_version_file()
             # create strings to have git tag of current version
             self._create_strings()
-            if self.check_git_tag:
-                if self._tag_on_current_commit(self.git_tag):
-                    self.increment_version = False
-                    self.update_version_file = False
-                    self.commit_version_file = False
-                    self.create_git_tag = False
-
+            self._check_git_tag()
             self._update_versions()
             # update strings
             self._create_strings()
@@ -215,6 +209,14 @@ class VersionManager:
         self.git_tag = f'{self.git_tag_prefix}{self.version_string}'
         if self.append_version:
             self.commit_message += f'{self.version_string}'
+
+    def _check_git_tag(self):
+        if self.check_git_tag:
+            if self._tag_on_current_commit(self.git_tag):
+                self.increment_version = False
+                self.update_version_file = False
+                self.commit_version_file = False
+                self.create_git_tag = False
 
     @staticmethod
     def _tag_on_current_commit(git_tag: str):
