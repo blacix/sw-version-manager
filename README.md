@@ -13,6 +13,7 @@ Tested with Python 3.7.
 - updates the desired version type in the version file passed as argument
 - can commit and push the version file
 - can creates a git tag with the version
+- checks if the current version tag is on the current commit in order to prevent from unnecessary increments.
 - outputs the version string to `stdout` or a file
 
 # how to use
@@ -49,6 +50,9 @@ equals to --tag --commit
 
 - --output:
 creates output file containing the version string
+
+- --nocheck:
+turn off checking if the current version tag is on the current commit
 
 
 ## how to configure
@@ -98,10 +102,6 @@ The output of this config is as follows:
 - commit message:  `version 1.0.24.111`
 
 
-## extra args
-- --notag: git tag will not be created
-- --nocommit: version file will not be commited
-
 
 # example
 In shell or a Jenkins job:
@@ -111,7 +111,7 @@ cd <your project>
 
 # pre-build step: update version file
 git clone https://github.com/blacix/sw-version-utility.git
-python sw-version-utility/version.py app_version.h version_config.json
+python sw-version-utility/version.py app_version.h version_config.json --update
 
 # build project
 
