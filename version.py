@@ -119,17 +119,17 @@ class VersionManager:
             print(f'{self.version_string}')
         except subprocess.CalledProcessError as se:
             print(se, file=sys.stderr)
-            return -1
+            return -2
         except json.JSONDecodeError as je:
             print('config JSON parse error!', file=sys.stderr)
             print(je, file=sys.stderr)
+            return -3
         except FileNotFoundError as fe:
             print(fe, file=sys.stderr)
-            return -1
+            return -4
         except Exception as e:
-            # print('unknown error!')
             print(e, file=sys.stderr)
-            return -1
+            return -5
         return 0
 
     # throws exception on error
