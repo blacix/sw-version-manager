@@ -128,7 +128,7 @@ class VersionManager:
         if len(filtered_versions_to_increment) != len(self.increment_tags):
             invalid_versions = [item for item in
                                 self.increment_tags if item not in self.version_tags]
-            print(f'print invalid version type(s) to increment: {invalid_versions}')
+            print(f'invalid version type(s) to increment: {invalid_versions}')
             raise Exception("invalid version type(s) found. Check your config!")
 
     # TODO error when valid version tag is missing from the version file
