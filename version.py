@@ -103,10 +103,12 @@ class VersionManager:
             self._check_version_tags()
             self._parse_version_file()
             self._update_versions()
+            self._create_strings()
             self._update_version_file()
-            self._create_version_string()
             self._git_update()
             self._create_output_files()
+            # print output
+            print(f'{self.version_string}')
         except subprocess.CalledProcessError as se:
             print(se, file=sys.stderr)
             return -1
@@ -194,10 +196,9 @@ class VersionManager:
                       repl=fr'\g<1>\g<2>\g<3>{str(version)}\n',
                       string=line)
 
-    def _create_version_string(self):
+    def _create_strings(self):
         # iterate through VERSION_TAGS so the order will be correct
         self.version_string = ".".join([str(self.version_map[item]) for item in self.version_tags])
-        print(f'{self.version_string}')
         self.git_tag = f'{self.git_tag_prefix}{self.version_string}'
         if self.append_version:
             self.commit_message += f'{self.version_string}'
