@@ -38,6 +38,9 @@ class VersionManager:
         self.commit_message = ""
         self.append_version = True
         self.create_output_files = False
+        self.check_git_tag = False
+        self.tag_on_current_commit = False
+
         self.parser_data = None
         self._create_line = None
 
@@ -76,6 +79,7 @@ class VersionManager:
         self.commit_version_file = '--commit' in sys.argv or '--git' in sys.argv
         self.create_git_tag = '--tag' in sys.argv or '--git' in sys.argv
         self.create_output_files = '--output' in sys.argv
+        self.check_git_tag = '--check' in sys.argv
 
     @staticmethod
     def print_usage():
@@ -102,8 +106,19 @@ class VersionManager:
             self._load_config()
             self._check_version_tags()
             self._parse_version_file()
+            self._create_strings()
+
+            if self.check_git_tag:
+                self.tag_on_current_commit = self._check_tag(self.git_tag)
+                if self.tag_on_current_commit:
+                    self.increment_version = False
+                    self.update_version_file = False
+                    self.commit_version_file = False
+                    self.create_git_tag = False
+
             self._update_versions()
             self._create_strings()
+
             self._update_version_file()
             self._git_update()
             self._create_output_files()
@@ -210,18 +225,14 @@ class VersionManager:
         if tag_commit_hash.returncode == 0:
             current_commit_hash = subprocess.run(f'git rev-parse HEAD', check=True, shell=True, capture_output=True)
             tag_on_commit = tag_commit_hash.stdout == current_commit_hash.stdout
-
-        print(f'got tag {tag_on_commit}')
         return tag_on_commit
 
     # can throw subprocess.CalledProcessError, FileNotFoundError, Exception
     def _git_update(self):
-        # TODO wrong condition
-        if len(self.increment_tags) > 0:
-            if self.commit_version_file:
-                self._commit_version_file(self.version_file, self.commit_message)
-            if self.create_git_tag:
-                self._update_git_tag(self.git_tag)
+        if self.commit_version_file:
+            self._commit_version_file(self.version_file, self.commit_message)
+        if self.create_git_tag:
+            self._update_git_tag(self.git_tag)
 
     # can throw subprocess.CalledProcessError
     @staticmethod
