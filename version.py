@@ -38,7 +38,7 @@ class VersionManager:
         self.commit_message = ""
         self.append_version = True
         self.create_output_files = False
-        self.check_git_tag = False
+        self.check_git_tag = True
 
         self.parser_data = None
         self._create_line = None
@@ -78,7 +78,7 @@ class VersionManager:
         self.commit_version_file = '--commit' in sys.argv or '--git' in sys.argv
         self.create_git_tag = '--tag' in sys.argv or '--git' in sys.argv
         self.create_output_files = '--output' in sys.argv
-        self.check_git_tag = '--check' in sys.argv
+        self.check_git_tag = '--nocheck' not in sys.argv
 
     @staticmethod
     def print_usage():
@@ -167,7 +167,7 @@ class VersionManager:
 
     def _update_version_file(self):
         # TODO do not check self.increment_tags
-        if len(self.increment_tags) > 0 and self.update_version_file:
+        if self.update_version_file:
             new_lines = []
             for line in self.version_file_content:
                 version_type, version_value = self._parse_line(line, self.parser_data)
