@@ -134,10 +134,6 @@ class VersionManager:
 
     # throws exception on error
     def _check_version_tags(self):
-        # # contains only valid project tags
-        # filtered_project_versions = [item for item in
-        #                              filter(lambda x: x in self.VERSION_TAGS, project_versions)]
-
         # check if every tag to be incremented are valid
         filtered_versions_to_increment = [item for item in
                                           self.increment_tags if item in self.version_tags]
@@ -167,7 +163,6 @@ class VersionManager:
                 self.version_map[tag] += 1
 
     def _update_version_file(self):
-        # TODO do not check self.increment_tags
         if self.update_version_file:
             new_lines = []
             for line in self.version_file_content:
@@ -197,7 +192,6 @@ class VersionManager:
                       repl=fr'\g<1>\g<2>\g<3>\g<4>{version}\g<6>',
                       string=line)
 
-    # TODO put back last groups of regex instead of '\n'
     @staticmethod
     def _create_android_line(line: str, version: int):
         return re.sub(pattern=ANDROID_DEFINE_PATTERN,
@@ -253,20 +247,10 @@ class VersionManager:
     # can throw subprocess.CalledProcessError
     @staticmethod
     def _update_git_tag(tag_name):
-        # print(tag_name)
-        # proc = subprocess.Popen('git tag', stdout=subprocess.PIPE)
-        # output = proc.stdout.readlines()
-
-        # proc = subprocess.run('git tag', check=True, capture_output=True, shell=True)
-        # output = proc.stdout
-        # print(output)
-        # if bytes(f'{tag_name}\n', 'utf-8') not in output:
         subprocess.run(f'git tag {tag_name}', check=True, shell=True, stdout=subprocess.DEVNULL)
         # subprocess.run(f'git push origin tag {tag_name}', check=True, shell=True)
         subprocess.run(f'git push origin --tags', check=True, shell=True, stdout=subprocess.DEVNULL,
                        stderr=subprocess.DEVNULL)
-        # else:
-        #     print(f'tag {tag_name} already exists')
 
     def _create_output_files(self):
         if self.create_output_files:
