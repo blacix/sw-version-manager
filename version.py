@@ -184,6 +184,17 @@ class VersionManager:
         self.version_string = ".".join([str(self.version_map[item]) for item in self.version_tags])
         print(f'{self.version_string}')
 
+    @staticmethod
+    def _check_tag(git_tag: str):
+        tag_on_commit = False
+        tag_commit_hash = subprocess.run(f'git rev-list -n 1 {git_tag}', check=False, shell=True, capture_output=True)
+        if tag_commit_hash.returncode == 0:
+            current_commit_hash = subprocess.run(f'git rev-parse HEAD', check=True, shell=True, capture_output=True)
+            tag_on_commit = tag_commit_hash.stdout == current_commit_hash.stdout
+
+        print(f'got tag {tag_on_commit}')
+        return tag_on_commit
+
     # can throw subprocess.CalledProcessError, FileNotFoundError, Exception
     def _git_update(self):
         if len(self.increment_tags) > 0:
@@ -199,7 +210,7 @@ class VersionManager:
     # can throw subprocess.CalledProcessError
     @staticmethod
     def _commit_version_file(version_file: str, commit_message: str):
-        subprocess.run(f'git add {version_file}', check=True, shell=True)
+        subprocess.run(f'git add {version_file}', check=True, shell=True, stdout=subprocess.DEVNULL)
         # check if added
         # returns non-zero if there is something to commit
         proc = subprocess.run(f'git diff-index --cached --quiet HEAD', check=False, shell=True,
@@ -236,4 +247,5 @@ class VersionManager:
 
 
 if __name__ == '__main__':
-    sys.exit(VersionManager().execute())
+    # sys.exit(VersionManager().execute())
+    VersionManager()._check_tag()
