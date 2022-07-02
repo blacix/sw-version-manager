@@ -7,11 +7,11 @@ import json
 MIN_ARG_CNT = 3
 
 # [^\S] matches any char that is not a non-whitespace = any char that is whitespace
-C_DEFINE_PATTERN = r"(.*#define)([^\S]+)(\S+)([^\S]+)(\d+)([^\S]*\n)"
+C_DEFINE_PATTERN = r"(.*#define)([^\S]+)(\S+)([^\S]+)(\d+)([^\S]*\n|$)"
 C_VERSION_TYPE_GROUP = 3
 C_VERSION_VALUE_GROUP = 5
 
-ANDROID_DEFINE_PATTERN = r"([^\S]*)(\S+)(=)([^\S]*)(\d+)([^\S]*\n)"
+ANDROID_DEFINE_PATTERN = r"([^\S]*)(\S+)(=)([^\S]*)(\d+)([^\S]*\n|$)"
 ANDROID_VERSION_TYPE_GROUP = 2
 ANDROID_VERSION_VALUE_GROUP = 5
 
