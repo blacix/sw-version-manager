@@ -24,8 +24,11 @@ class VersionManager:
         self.version_file = None
         self.version_file_content = []
         self.config_json = None
+        # all tags from config
         self.version_tags = []
+        # tags to increment from config
         self.increment_tags = []
+        # holds version info, created from self.version_tags
         self.version_map = {}
         self.update_version_file = False
         self.commit_version_file = False
@@ -39,17 +42,19 @@ class VersionManager:
         self.commit_message = ""
         self.append_version = True
         self.create_output_files = False
-        self.check_git_tag = True
+        # check if current commit has the current version tag
+        # if it is so, no update is needed
+        self.check_git_tag = False
 
+        # tuple for parser, which contains regex and regex grouping info, set based on language
         self.parser_data = None
-        self._create_line = None
+        # function for creating a line with the version, set to a specific method based on language
+        self._create_line_dynamic = None
 
     # can throw FileNotFoundError
     def _load_config(self):
         self.version_file = sys.argv[1]
         self.config_json = sys.argv[2]
-        # load json config
-        # print('loading config')
         config_json = json.load(open(self.config_json))
         self.version_tags = config_json["version_tags"]
         self.increment_tags = config_json["increment"]
@@ -63,12 +68,12 @@ class VersionManager:
         self.language = str(config_json["language"]).strip().lower()
         if self.language == 'c':
             self.parser_data = C_REGEX
-            self._create_line = self._create_c_line
+            self._create_line_dynamic = self._create_c_line
         elif self.language == 'cpp':
             pass
         elif self.language == 'android':
             self.parser_data = ANDROID_REGEX
-            self._create_line = self._create_android_line
+            self._create_line_dynamic = self._create_android_line
         else:
             raise Exception(f'unknown language: {self.language}')
 
@@ -80,23 +85,6 @@ class VersionManager:
         self.create_git_tag = '--tag' in sys.argv or '--git' in sys.argv
         self.create_output_files = '--output' in sys.argv
         self.check_git_tag = '--check' in sys.argv
-
-    @staticmethod
-    def print_usage():
-        print(f'usage:')
-        print(f'python {os.path.basename(sys.argv[0])} version_file_path config_file_path [--update | --git | --output]')
-        print('\t--read: ')
-        print('\t\treads the version file')
-        print('\t\tversion file will not be updated if present')
-        print('\t--update:')
-        print('\t\tupdates the version file')
-        print('\t\tthis is the default if no extra args are provided')
-        print('\t--git:')
-        print('\t\tcreates and pushes a git tag if configured')
-        print('\t\tcommits and pushes the version file')
-        print('\t\tversion file update will only be updated if --update is present')
-        print('\t--output:')
-        print('\t\tcreates output file containing the version string')
 
     def execute(self):
         if len(sys.argv) < MIN_ARG_CNT:
@@ -137,7 +125,6 @@ class VersionManager:
         # check if every tag to be incremented are valid
         filtered_versions_to_increment = [item for item in
                                           self.increment_tags if item in self.version_tags]
-        # print(filtered_versions_to_increment)
         if len(filtered_versions_to_increment) != len(self.increment_tags):
             invalid_versions = [item for item in
                                 self.increment_tags if item not in self.version_tags]
@@ -146,7 +133,6 @@ class VersionManager:
 
     # TODO error when valid version tag is missing from the version file
     def _parse_version_file(self):
-        # print(f'updating {str(self.increment_tags)}')
         with open(self.version_file, 'r') as file:
             for line in file:
                 version_type, version_value = self._parse_line(line, self.parser_data)
@@ -168,7 +154,7 @@ class VersionManager:
             for line in self.version_file_content:
                 version_type, version_value = self._parse_line(line, self.parser_data)
                 if version_type is not None and version_value is not None:
-                    new_lines.append(self._create_line(line, self.version_map[version_type]))
+                    new_lines.append(self._create_line_dynamic(line, self.version_map[version_type]))
                 else:
                     new_lines.append(line)
 
@@ -199,11 +185,13 @@ class VersionManager:
                       string=line)
 
     def _create_strings(self):
-        # iterate through VERSION_TAGS so the order will be correct
+        # iterate through self.version_tags so the order will be correct
         self.version_string = ".".join([str(self.version_map[item]) for item in self.version_tags])
         self.git_tag = f'{self.git_tag_prefix}{self.version_string}'
         if self.append_version:
             self.commit_message = f'{self.commit_message_base}{self.version_string}'
+        else:
+            self.commit_message = f'{self.commit_message_base}'
 
     def _check_git_tag(self):
         if self.check_git_tag:
@@ -240,7 +228,6 @@ class VersionManager:
         if proc.returncode == 0:
             raise Exception(f'git add {version_file} failed')
         commit_cmd = f'git commit -m "{commit_message}"'
-        # print(commit_cmd)
         subprocess.run(commit_cmd, check=True, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         subprocess.run(f'git push', check=True, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
@@ -256,6 +243,23 @@ class VersionManager:
         if self.create_output_files:
             with open(self.version_output_file, 'w') as file:
                 file.write(self.version_string)
+
+    @staticmethod
+    def print_usage():
+        print(f'usage:')
+        print(f'python {os.path.basename(sys.argv[0])} version_file_path config_file_path [--update | --git | --output]')
+        print('\t--read: ')
+        print('\t\treads the version file')
+        print('\t\tversion file will not be updated if present')
+        print('\t--update:')
+        print('\t\tupdates the version file')
+        print('\t\tthis is the default if no extra args are provided')
+        print('\t--git:')
+        print('\t\tcreates and pushes a git tag if configured')
+        print('\t\tcommits and pushes the version file')
+        print('\t\tversion file update will only be updated if --update is present')
+        print('\t--output:')
+        print('\t\tcreates output file containing the version string')
 
 
 if __name__ == '__main__':
