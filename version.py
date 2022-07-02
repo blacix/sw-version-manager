@@ -79,7 +79,7 @@ class VersionManager:
         self.commit_version_file = '--commit' in sys.argv or '--git' in sys.argv
         self.create_git_tag = '--tag' in sys.argv or '--git' in sys.argv
         self.create_output_files = '--output' in sys.argv
-        self.check_git_tag = '--nocheck' not in sys.argv
+        self.check_git_tag = '--check' in sys.argv
 
     @staticmethod
     def print_usage():
