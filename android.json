@@ -1,11 +1,11 @@
 {
   "version_tags" : [
+    "VERSION_CODE",
     "MAJOR",
     "MINOR",
-    "BUILD_NUMBER",
-    "VERSION_CODE"
+    "BUILD_NUMBER"
   ],
-  "increment" : ["VERSION_CODE", "BUILD_NUMBER"],
+  "increment" : ["BUILD_NUMBER"],
   "language" : "android",
   "git_tag_prefix": "V",
   "output_file" : "version.txt",
