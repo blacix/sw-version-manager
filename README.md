@@ -46,7 +46,7 @@ commits the version file
 git tag is created with the version
 
 - --git
-equals to --tag --commit
+same as --tag --commit
 
 - --output:
 creates output file containing the version string
