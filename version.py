@@ -39,7 +39,6 @@ class VersionManager:
         self.append_version = True
         self.create_output_files = False
         self.check_git_tag = False
-        self.tag_on_current_commit = False
 
         self.parser_data = None
         self._create_line = None
@@ -106,19 +105,18 @@ class VersionManager:
             self._load_config()
             self._check_version_tags()
             self._parse_version_file()
+            # create strings to have git tag of current version
             self._create_strings()
-
             if self.check_git_tag:
-                self.tag_on_current_commit = self._check_tag(self.git_tag)
-                if self.tag_on_current_commit:
+                if self._tag_on_current_commit(self.git_tag):
                     self.increment_version = False
                     self.update_version_file = False
                     self.commit_version_file = False
                     self.create_git_tag = False
 
             self._update_versions()
+            # update strings
             self._create_strings()
-
             self._update_version_file()
             self._git_update()
             self._create_output_files()
@@ -219,7 +217,7 @@ class VersionManager:
             self.commit_message += f'{self.version_string}'
 
     @staticmethod
-    def _check_tag(git_tag: str):
+    def _tag_on_current_commit(git_tag: str):
         tag_on_commit = False
         tag_commit_hash = subprocess.run(f'git rev-list -n 1 {git_tag}', check=False, shell=True, capture_output=True)
         if tag_commit_hash.returncode == 0:
