@@ -22,6 +22,7 @@ ANDROID_REGEX = (ANDROID_DEFINE_PATTERN, ANDROID_VERSION_TYPE_GROUP, ANDROID_VER
 class VersionManager:
     def __init__(self):
         self.version_file = None
+        self.version_file_content = []
         self.config_json = None
         self.version_tags = []
         self.increment_tags = []
@@ -101,6 +102,8 @@ class VersionManager:
             self._load_config()
             self._check_version_tags()
             self._parse_version_file()
+            self._update_versions()
+            self._update_version_file()
             self._create_version_string()
             self._git_update()
             self._create_output_files()
@@ -138,20 +141,32 @@ class VersionManager:
     # TODO error when valid version tag is missing from the version file
     def _parse_version_file(self):
         # print(f'updating {str(self.increment_tags)}')
-        new_lines = []
         with open(self.version_file, 'r') as file:
             for line in file:
                 version_type, version_value = self._parse_line(line, self.parser_data)
                 if version_type is not None and version_value is not None:
-                    if version_type in self.increment_tags and self.increment_version:
-                        version_value += 1
                     self.version_map[version_type] = version_value
-                    new_line = self._create_line(line, version_value)
-                    new_lines.append(new_line)
+                self.version_file_content.append(line)
+
+    def _update_versions(self):
+        if not self.increment_version:
+            return
+
+        for tag in self.increment_tags:
+            if tag in self.version_map.keys():
+                self.version_map[tag] += 1
+
+    def _update_version_file(self):
+        # TODO do not check self.increment_tags
+        if len(self.increment_tags) > 0 and self.update_version_file:
+            new_lines = []
+            for line in self.version_file_content:
+                version_type, version_value = self._parse_line(line, self.parser_data)
+                if version_type is not None and version_value is not None:
+                    new_lines.append(self._create_line(line, self.version_map[version_type]))
                 else:
                     new_lines.append(line)
 
-        if len(self.increment_tags) > 0 and self.update_version_file:
             with open(self.version_file, 'w') as file:
                 file.writelines(new_lines)
 
@@ -183,6 +198,9 @@ class VersionManager:
         # iterate through VERSION_TAGS so the order will be correct
         self.version_string = ".".join([str(self.version_map[item]) for item in self.version_tags])
         print(f'{self.version_string}')
+        self.git_tag = f'{self.git_tag_prefix}{self.version_string}'
+        if self.append_version:
+            self.commit_message += f'{self.version_string}'
 
     @staticmethod
     def _check_tag(git_tag: str):
@@ -197,14 +215,11 @@ class VersionManager:
 
     # can throw subprocess.CalledProcessError, FileNotFoundError, Exception
     def _git_update(self):
+        # TODO wrong condition
         if len(self.increment_tags) > 0:
             if self.commit_version_file:
-                if self.append_version:
-                    self.commit_message += f'{self.version_string}'
                 self._commit_version_file(self.version_file, self.commit_message)
             if self.create_git_tag:
-                self.git_tag = f'{self.git_tag_prefix}{self.version_string}'
-                # print(f'git tag: {self.git_tag}')
                 self._update_git_tag(self.git_tag)
 
     # can throw subprocess.CalledProcessError
@@ -247,5 +262,4 @@ class VersionManager:
 
 
 if __name__ == '__main__':
-    # sys.exit(VersionManager().execute())
-    VersionManager()._check_tag()
+    sys.exit(VersionManager().execute())
