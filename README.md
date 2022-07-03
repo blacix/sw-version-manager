@@ -1,5 +1,5 @@
 # sw-version-utility
-Minimalist, portable and not perfect Python script for automatically incrementing software version in files containing a software version, eg.g.: C header files, and update it in git as well.
+Minimalist, portable Python script for automatically incrementing software version in files containing a software version, e.g.: C header files, and update it in git as well.
 
 It might be useful for CI/CD.
 
@@ -10,11 +10,19 @@ Works with Python version 3.3 and above.
 Tested with Python 3.7.
 
 # what it can do
-- updates the desired version type in the version file passed as argument
+- can read or update the desired version type in the version file passed as argument
 - can commit and push the version file
 - can creates a git tag with the version
-- checks if the current version tag is on the current commit in order to prevent from unnecessary increments.
-- outputs the version string to `stdout` or a file
+- can check if the current version tag is on the current commit in order to prevent from unnecessary increments.
+- can output the version string to `stdout` or a file
+
+It works with:
+- C header files with  `#define` macros
+- Android `version.properties` file
+
+TODO
+  - C++ `const` and `constexpr`
+  - text file with a version string
 
 # how to use
 The script only works with C `#define` macros.
@@ -51,8 +59,8 @@ same as --tag --commit
 - --output:
 creates output file containing the version string
 
-- --nocheck:
-turn off checking if the current version tag is on the current commit
+- --check:
+checks if the current version tag is on the current commit
 
 
 ## how to configure
@@ -89,7 +97,10 @@ NOTE: all config parameters must be present, otherwise the script will fail. Thi
 ```
 - version_tags: the macro definitionss present in your version file. dd the name of your macro definitions to `version_tags`.
 - increment: version tags to be incremented in the version file.
-- language: not implemented yet, only works with C `#define` macros
+- language:
+  - C
+  - android 
+  
 The default git tag is the version string, e.g.: `1.0.0`
 - git_tag_prefix: adds this prefix to the git tag, e.g.: `V1.0.0`
 - output_file: if `--output` is provided as argument, the output file with this name, containing the version string is created
