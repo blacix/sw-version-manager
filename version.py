@@ -212,6 +212,7 @@ class VersionManager:
 
     # can throw subprocess.CalledProcessError, FileNotFoundError, Exception
     def _git_update(self):
+        # TODO push only when both were successful
         if self.commit_version_file:
             self._commit_version_file(self.version_file, self.commit_message)
         if self.create_git_tag:
