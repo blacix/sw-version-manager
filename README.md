@@ -1,5 +1,5 @@
 # sw-version-utility
-Minimalist, portable Python script for automatically incrementing software version in files containing a software version, e.g.: C header files, and update it in git as well.
+Minimalist, portable Python script for automatically incrementing software version in files containing a software version, e.g.: C header, and updates it in git as well.
 
 It might be useful for CI/CD.
 
