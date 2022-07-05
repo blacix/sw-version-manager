@@ -15,8 +15,8 @@ ANDROID_DEFINE_PATTERN = r"([^\S]*)(\S+)(=)([^\S]*)(\d+)([^\S]*\n|$)"
 ANDROID_VERSION_TYPE_GROUP = 2
 ANDROID_VERSION_VALUE_GROUP = 5
 
-C_REGEX = (C_DEFINE_PATTERN, C_VERSION_TYPE_GROUP, C_VERSION_VALUE_GROUP)
-ANDROID_REGEX = (ANDROID_DEFINE_PATTERN, ANDROID_VERSION_TYPE_GROUP, ANDROID_VERSION_VALUE_GROUP)
+C_PARSER_DATA = (C_DEFINE_PATTERN, C_VERSION_TYPE_GROUP, C_VERSION_VALUE_GROUP)
+ANDROID_PARSER_DATA = (ANDROID_DEFINE_PATTERN, ANDROID_VERSION_TYPE_GROUP, ANDROID_VERSION_VALUE_GROUP)
 
 
 class VersionManager:
@@ -67,12 +67,12 @@ class VersionManager:
         # language setup
         self.language = str(config_json["language"]).strip().lower()
         if self.language == 'c':
-            self.parser_data = C_REGEX
+            self.parser_data = C_PARSER_DATA
             self._create_line_dynamic = self._create_c_line
         elif self.language == 'cpp':
             pass
         elif self.language == 'android':
-            self.parser_data = ANDROID_REGEX
+            self.parser_data = ANDROID_PARSER_DATA
             self._create_line_dynamic = self._create_android_line
         else:
             raise Exception(f'unknown language: {self.language}')
