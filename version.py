@@ -188,10 +188,9 @@ class VersionManager:
         # iterate through self.version_tags so the order will be correct
         self.version_string = ".".join([str(self.version_map[item]) for item in self.version_tags])
         self.git_tag = f'{self.git_tag_prefix}{self.version_string}'
+        self.commit_message = self.commit_message_base
         if self.append_version:
-            self.commit_message = f'{self.commit_message_base}{self.version_string}'
-        else:
-            self.commit_message = f'{self.commit_message_base}'
+            self.commit_message += {self.version_string}
 
     def _check_git_tag(self):
         if self.check_git_tag:
