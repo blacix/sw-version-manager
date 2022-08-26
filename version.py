@@ -205,9 +205,9 @@ class VersionManager:
     def _git_update(self):
         # TODO push only when both were successful
         if self.commit_version_file:
-            git_utils.commit_version_file(self.version_file, self.commit_message)
+            git_utils.commit_file(self.version_file, self.commit_message)
         if self.create_git_tag:
-            git_utils.update_git_tag(self.git_tag)
+            git_utils.create_git_tag(self.git_tag)
 
     def _create_output_files(self):
         if self.create_output_files:
