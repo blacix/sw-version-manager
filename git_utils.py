@@ -37,7 +37,7 @@ def create_git_tag(tag_name: str):
 
 def print_usage():
     print(f'usage:')
-    print(f'python {os.path.basename(sys.argv[0])} [--check] git_tag')
+    print(f'python {os.path.basename(sys.argv[0])} git_tag [--check]')
 
 
 if __name__ == '__main__':
@@ -49,7 +49,7 @@ if __name__ == '__main__':
         action = ""
         if len(sys.argv) >= 3:
             action = sys.argv[2]
-        if action == "--check" or action != "--check" and not tag_on_current_commit(git_tag):
+        if action == "--check" and not tag_on_current_commit(git_tag) or action != "--check":
             create_git_tag(git_tag)
     except subprocess.CalledProcessError as se:
         print(se, file=sys.stderr)
