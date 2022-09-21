@@ -80,6 +80,7 @@ class VersionManager:
 
         # apply arguments
         # Note: arguments can override settings
+        # TODO add --prefix and remove setting from config file
         self.increment_version = '--update' in sys.argv
         self.update_version_file = self.increment_version
         self.commit_version_file = '--commit' in sys.argv or '--git' in sys.argv
