@@ -8,7 +8,6 @@
   "increment" : ["BUILD_NUMBER"],
   "language" : "android",
   "git_tag_prefix": "V",
-  "output_file" : "version.txt",
   "commit_message" : "version ",
   "append_version" : true
 }

@@ -38,7 +38,6 @@ class VersionManager:
         self.git_tag_prefix = ""
         self.git_tag = ""
         self.version_string = ""
-        self.version_output_file = None
         self.commit_message_base = ""
         self.commit_message = ""
         self.append_version = True
@@ -60,7 +59,6 @@ class VersionManager:
         self.version_tags = config_json["version_tags"]
         self.increment_tags = config_json["increment"]
         self.git_tag_prefix = config_json["git_tag_prefix"]
-        self.version_output_file = config_json["output_file"]
         self.commit_message_base = config_json["commit_message"]
         self.append_version = config_json["append_version"]
         self.version_map = {self.version_tags[i]: 0 for i in range(0, len(self.version_tags))}
@@ -85,8 +83,8 @@ class VersionManager:
         self.update_version_file = self.increment_version
         self.commit_version_file = '--commit' in sys.argv or '--git' in sys.argv
         self.create_git_tag = '--tag' in sys.argv or '--git' in sys.argv
-        self.create_output_files = '--output' in sys.argv
         self.check_git_tag = '--check' in sys.argv
+        self.print_raw_version = '--no-prefix' in sys.argv
 
     def execute(self):
         if len(sys.argv) < MIN_ARG_CNT:
@@ -104,9 +102,7 @@ class VersionManager:
             self._create_strings()
             self._update_version_file()
             self._git_update()
-            self._create_output_files()
-            # print output
-            print(f'{self.version_string}')
+            self._print_output()
         except subprocess.CalledProcessError as se:
             print(se, file=sys.stderr)
             return -2
@@ -210,10 +206,11 @@ class VersionManager:
         if self.create_git_tag:
             git_utils.create_git_tag(self.git_tag)
 
-    def _create_output_files(self):
-        if self.create_output_files:
-            with open(self.version_output_file, 'w') as file:
-                file.write(self.version_string)
+    def _print_output(self):
+        if self.print_raw_version:
+            print(f'{self.version_string}')
+        else:
+            print(f'{self.git_tag}')
 
     @staticmethod
     def print_usage():
