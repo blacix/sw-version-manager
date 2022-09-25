@@ -215,19 +215,14 @@ class VersionManager:
     @staticmethod
     def print_usage():
         print(f'usage:')
-        print(f'python {os.path.basename(sys.argv[0])} version_file_path config_file_path [--update | --git | --output]')
-        print('\t--read: ')
-        print('\t\treads the version file.')
-        print('\t\tversion file is not be updated if present.')
-        print('\t--update:')
-        print('\t\tupdates the version file.')
-        print('\t\tthis is the default if no extra args are provided.')
-        print('\t--git:')
-        print('\t\tcreates and pushes a git tag if configured.')
-        print('\t\tcommits and pushes the version file.')
-        print('\t\tversion file is only be updated if --update is present.')
-        print('\t--output:')
-        print('\t\tcreates output file containing the version string.')
+        print(f'python {os.path.basename(sys.argv[0])} <version_file_path> <config_file_path> [--update] [--git] '
+              f'[--commit] [--tag]')
+        print('\twithout extra args: reads the version file and prints version tag ( version + prefix )')
+        print('\t--update: increments the version number(s) in the version file')
+        print('\t--tag: creates and pushes the version tag to the git repo')
+        print('\t--commit: commits and pushes the version file.')
+        print('\t--git: same as --commit --tag')
+        print('\t--no-prefix: instead of the version tag ( version + prefix ) it prints the raw version number')
 
 
 if __name__ == '__main__':
