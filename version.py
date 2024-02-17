@@ -81,8 +81,8 @@ class VersionManager:
         # TODO add --prefix and remove setting from config file
         self.increment_version = '--update' in sys.argv
         self.update_version_file = self.increment_version
-        self.commit_version_file = '--commit' in sys.argv or '--git' in sys.argv
-        self.create_git_tag = '--tag' in sys.argv or '--git' in sys.argv
+        self.commit_version_file = '--commit' in sys.argv
+        self.create_git_tag = '--tag' in sys.argv
         self.check_git_tag = '--check' in sys.argv
         self.print_raw_version = '--no-prefix' in sys.argv
 
