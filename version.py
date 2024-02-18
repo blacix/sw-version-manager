@@ -4,6 +4,9 @@ import re
 import subprocess
 import json
 import git_utils
+from version_file_parser import VersionFileParser
+from regex_parser import RegexParser
+import semver
 
 MIN_ARG_CNT = 3
 
@@ -22,6 +25,17 @@ ANDROID_PARSER_DATA = (ANDROID_DEFINE_PATTERN, ANDROID_VERSION_TYPE_GROUP, ANDRO
 
 class VersionManager:
     def __init__(self):
+        # playing with semver
+        ver = semver.Version.parse('1.2.3-pre.2+build.4')
+        ver = ver.bump_build()
+        print(ver)
+        ver = ver.bump_major()
+        ver = ver.bump_build()
+        print(ver)
+
+        self.parser: VersionFileParser = VersionFileParser()
+        # end of playing with semver
+
         self.version_file = None
         self.version_file_content = []
         self.config_json = None
@@ -76,6 +90,10 @@ class VersionManager:
         else:
             raise Exception(f'unknown language: {self.language}')
 
+        # testng with regex parser
+        if self.language in RegexParser.LANGUAGES:
+            self.parser = RegexParser(self.language, self.version_file)
+
         # apply arguments
         # Note: arguments can override settings
         # TODO add --prefix and remove setting from config file
@@ -92,6 +110,14 @@ class VersionManager:
             return -1
         try:
             self._load_config()
+            # testing regex_parser with semver
+            ver = self.parser.parse()
+            print(ver)
+            ver = ver.bump_prerelease()
+            ver = ver.bump_build()
+            print(ver)
+            # end of testing regex_parser with semver
+
             self._check_version_tags()
             self._parse_version_file()
             # create strings to have git tag of current version
