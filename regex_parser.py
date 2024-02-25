@@ -58,10 +58,22 @@ class RegexParser(VersionFileParser):
             pre_release = next((value for key, value in self.version_map.items() if "pre_release" in str(key).lower() and "prefix" not in str(key).lower()), "")
             build_prefix = next((value for key, value in self.version_map.items() if "build_prefix" in str(key).lower()), "")
             build = next((value for key, value in self.version_map.items() if "build" in str(key).lower() and "prefix" not in str(key).lower()), "")
-            version_string = str(major) + "." + str(minor) + "." + str(patch) + "-" + pre_release_prefix + "." + str(pre_release) + "+" + build_prefix + "." + str(build)
+            version_string = str(major) + "." + str(minor) + "." + str(patch)
+
+            if len(pre_release) > 0:
+                version_string += "-"
+                if len(pre_release_prefix) > 0:
+                    version_string += pre_release_prefix + "."
+                version_string += str(pre_release)
+            if len(build) > 0:
+                version_string += "+"
+                if len(build_prefix) > 0:
+                    version_string += build_prefix + "."
+                version_string += str(build)
             print(version_string)
             ver = semver.Version.parse(version_string)
             return ver
+        
     @staticmethod
     def _parse_line(line: str, parser_data: ()):
         pattern, version_type_group, version_value_group = parser_data
