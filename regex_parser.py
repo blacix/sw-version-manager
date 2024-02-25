@@ -95,19 +95,22 @@ class RegexParser(VersionFileParser):
                     self.version_map[version_type] = version.minor
                 elif Common.TAG_PATCH.lower() in version_type.lower():
                     self.version_map[version_type] = version.patch
-                elif Common.TAG_PRE_RELEASE.lower() in version_type.lower() and 'prefix' not in version_type.lower():
+                elif Common.TAG_PRE_RELEASE.lower() in version_type.lower() and Common.TAG_PREFIX.lower() not in version_type.lower():
                     if version.prerelease is not None:
-                        numeric_prerelease = None
+                        numeric_prerelease = ""
                         for identifier in version.prerelease:
                             if identifier.isdigit():
-                                numeric_prerelease = int(identifier)
-                                break
+                                numeric_prerelease += identifier
                         self.version_map[version_type] = numeric_prerelease
                     else:
                         self.version_map[version_type] = 0
-                elif Common.TAG_BUILD.lower() in version_type.lower() and 'prefix' not in version_type.lower():
+                elif Common.TAG_BUILD.lower() in version_type.lower() and Common.TAG_PREFIX.lower() not in version_type.lower():
                     if version.build is not None:
-                        self.version_map[version_type] = version.build
+                        numeric_build = ""
+                        for identifier in version.build:
+                            if identifier.isdigit():
+                                numeric_build += identifier
+                        self.version_map[version_type] = numeric_build
                     else:
                         self.version_map[version_type] = 0
 

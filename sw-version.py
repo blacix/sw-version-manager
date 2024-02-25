@@ -19,8 +19,10 @@ class SoftwareVersion:
         self.version_file: str = args.file
         self.bump: str = args.bump
         self.commit: bool = args.commit
-        self.tag: bool = args.tag
-        self.tag_prefix = args.tag_prefix
+        self.create_git_tag: bool = args.tag
+        self.git_tag_prefix = args.tag_prefix
+        self.git_tag = self.git_tag_prefix
+        self.check_git_tag = args.check_tag
         self.version: semver.Version = None
 
         if self.language in RegexParser.LANGUAGES:
@@ -44,6 +46,7 @@ class SoftwareVersion:
         parser.add_argument('--tag_prefix', default='', help='Prefix for git tag')
 
         parser.add_argument('--bump', choices=self.VALID_BUMPS, help='Specify the tag to bump')
+        parser.add_argument('--check_tag', action='store_true', help='checks is the tag is already on the current commit')
 
         return parser.parse_args()
 
@@ -70,11 +73,29 @@ class SoftwareVersion:
             print('Parse error')
             return -1
 
+
+        pre_bump_git_tag = self.git_tag_prefix + str(self.version)
+        ver = semver.Version.parse('0.0.11')
+        print(ver.compare(self.version))
+        if self.check_git_tag:
+            if git_utils.tag_on_current_commit(pre_bump_git_tag):
+                self.bump = False
+                self.create_git_tag = False
+                self.commit = False
+
         if self.bump:
             self._bump()
             self.parser.update(self.version)
 
-        result = str(self.tag_prefix + str(self.version))
+        self.git_tag = self.git_tag_prefix + str(self.version)
+        if self.create_git_tag:
+            print(f'tag: {self.git_tag}')
+
+        if self.commit:
+            # git_utils.commit_file(self.version_file, self.git_tag)
+            print(f'commit: {self.version_file} {self.git_tag}')
+
+        result = str(self.git_tag_prefix + str(self.version))
         print(result)
         return 0
 
