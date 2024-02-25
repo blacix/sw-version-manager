@@ -25,4 +25,4 @@ class RosPackageParser(VersionFileParser):
     def update(self, version: semver.Version):
         if self.xml_element_tree is not None and self.xml_version_tag is not None:
             self.xml_version_tag.text = str(version)
-            self.xml_element_tree.write(self.version_file)
+            self.xml_element_tree.write(self.version_file, xml_declaration=True, encoding='utf-8')
