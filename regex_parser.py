@@ -49,13 +49,13 @@ class RegexParser(VersionFileParser):
                 self.version_file_content.append(line)
 
             # TODO get these in the for loop
-            major = next((value for key, value in self.version_map.items() if "major" in str(key).lower()), "")
-            minor = next((value for key, value in self.version_map.items() if "minor" in str(key).lower()), "")
-            patch = next((value for key, value in self.version_map.items() if "patch" in str(key).lower()), "")
-            pre_release_prefix = next((value for key, value in self.version_map.items() if "pre_release_prefix" in str(key).lower()), "")
-            pre_release = next((value for key, value in self.version_map.items() if "prerelease" in str(key).lower() and "prefix" not in str(key).lower()), "")
-            build_prefix = next((value for key, value in self.version_map.items() if "build_prefix" in str(key).lower()), "")
-            build = next((value for key, value in self.version_map.items() if "build" in str(key).lower() and "prefix" not in str(key).lower()), "")
+            major = next((value for key, value in self.version_map.items() if Common.TAG_MAJOR.lower() in str(key).lower()), "")
+            minor = next((value for key, value in self.version_map.items() if Common.TAG_MINOR.lower() in str(key).lower()), "")
+            patch = next((value for key, value in self.version_map.items() if Common.TAG_PATCH.lower() in str(key).lower()), "")
+            pre_release_prefix = next((value for key, value in self.version_map.items() if Common.TAG_PRERELEASE_PREFIX.lower() in str(key).lower()), "")
+            pre_release = next((value for key, value in self.version_map.items() if Common.TAG_PRERELEASE.lower() in str(key).lower() and Common.TAG_PREFIX.lower() not in str(key).lower()), "")
+            build_prefix = next((value for key, value in self.version_map.items() if Common.TAG_BUILD_PREFIX.lower() in str(key).lower()), "")
+            build = next((value for key, value in self.version_map.items() if Common.TAG_BUILD.lower() in str(key).lower() and Common.TAG_PREFIX.lower() not in str(key).lower()), "")
             version_string = str(major) + "." + str(minor) + "." + str(patch)
 
             if len(pre_release) > 0:

@@ -5,3 +5,5 @@ class Common:
     TAG_PRERELEASE = 'prerelease'
     TAG_BUILD = 'build'
     TAG_PREFIX = 'prefix'
+    TAG_PRERELEASE_PREFIX = TAG_PRERELEASE + "_" + TAG_PREFIX
+    TAG_BUILD_PREFIX = TAG_BUILD + "_" + TAG_PREFIX
