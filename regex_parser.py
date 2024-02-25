@@ -1,9 +1,4 @@
-import os
-import sys
 import re
-import subprocess
-import json
-import git_utils
 from version_file_parser import VersionFileParser
 import semver
 from common import *
@@ -53,11 +48,12 @@ class RegexParser(VersionFileParser):
                     self.version_map[version_type] = version_value
                 self.version_file_content.append(line)
 
+            # TODO get these in the for loop
             major = next((value for key, value in self.version_map.items() if "major" in str(key).lower()), "")
             minor = next((value for key, value in self.version_map.items() if "minor" in str(key).lower()), "")
             patch = next((value for key, value in self.version_map.items() if "patch" in str(key).lower()), "")
             pre_release_prefix = next((value for key, value in self.version_map.items() if "pre_release_prefix" in str(key).lower()), "")
-            pre_release = next((value for key, value in self.version_map.items() if "pre_release" in str(key).lower() and "prefix" not in str(key).lower()), "")
+            pre_release = next((value for key, value in self.version_map.items() if "prerelease" in str(key).lower() and "prefix" not in str(key).lower()), "")
             build_prefix = next((value for key, value in self.version_map.items() if "build_prefix" in str(key).lower()), "")
             build = next((value for key, value in self.version_map.items() if "build" in str(key).lower() and "prefix" not in str(key).lower()), "")
             version_string = str(major) + "." + str(minor) + "." + str(patch)
@@ -72,7 +68,7 @@ class RegexParser(VersionFileParser):
                 if len(build_prefix) > 0:
                     version_string += build_prefix + "."
                 version_string += str(build)
-            print(version_string)
+            # print(version_string)
             ver = semver.Version.parse(version_string)
             return ver
 
@@ -91,16 +87,30 @@ class RegexParser(VersionFileParser):
         for line in self.version_file_content:
             version_type, version_value = self._parse_line(line, self.parser_data)
             if version_type is not None and version_value is not None:
-                if Common.BUMP_MAJOR.lower() in version_type.lower():
+                # update version map with new value
+                # TODO separate method
+                if Common.TAG_MAJOR.lower() in version_type.lower():
                     self.version_map[version_type] = version.major
-                elif Common.BUMP_MINOR.lower() in version_type.lower():
+                elif Common.TAG_MINOR.lower() in version_type.lower():
                     self.version_map[version_type] = version.minor
-                elif Common.BUMP_PATCH.lower() in version_type.lower():
+                elif Common.TAG_PATCH.lower() in version_type.lower():
                     self.version_map[version_type] = version.patch
-                elif Common.BUMP_PRE_RELEASE.lower() in version_type.lower() and 'prefix' not in version_type.lower():
-                    self.version_map[version_type] = version.prerelease
-                elif Common.BUMP_BUILD.lower() in version_type.lower() and 'prefix' not in version_type.lower():
-                    self.version_map[version_type] = version.build
+                elif Common.TAG_PRERELEASE.lower() in version_type.lower() and 'prefix' not in version_type.lower():
+                    if version.prerelease is not None:
+                        numeric_prerelease = None
+                        for identifier in version.prerelease:
+                            if identifier.isdigit():
+                                numeric_prerelease = int(identifier)
+                                break
+                        self.version_map[version_type] = numeric_prerelease
+                    else:
+                        self.version_map[version_type] = 0
+                elif Common.TAG_BUILD.lower() in version_type.lower() and 'prefix' not in version_type.lower():
+                    if version.build is not None:
+                        self.version_map[version_type] = version.build
+                    else:
+                        self.version_map[version_type] = 0
+
                 new_lines.append(self._create_line_dynamic(line, self.version_map[version_type]))
             else:
                 new_lines.append(line)

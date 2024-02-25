@@ -1,6 +1,7 @@
 class Common:
-    BUMP_MAJOR = 'major'
-    BUMP_MINOR = 'minor'
-    BUMP_PATCH = 'major'
-    BUMP_PRE_RELEASE = 'prerelease'
-    BUMP_BUILD = 'build'
+    TAG_MAJOR = 'major'
+    TAG_MINOR = 'minor'
+    TAG_PATCH = 'patch'
+    TAG_PRERELEASE = 'prerelease'
+    TAG_BUILD = 'build'
+    TAG_PREFIX = 'prefix'

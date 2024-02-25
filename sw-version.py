@@ -10,7 +10,7 @@ from common import *
 
 
 class SoftwareVersion:
-    VALID_BUMPS = [Common.BUMP_MAJOR, Common.BUMP_MINOR, Common.BUMP_PATCH, Common.BUMP_PRE_RELEASE, Common.BUMP_BUILD]
+    VALID_BUMPS = [Common.TAG_MAJOR, Common.TAG_MINOR, Common.TAG_PATCH, Common.TAG_PRERELEASE, Common.TAG_BUILD]
 
     def __init__(self):
         args = self._parse_arguments()
@@ -50,15 +50,15 @@ class SoftwareVersion:
     def _bump(self):
         if self.version is None:
             return
-        elif Common.BUMP_MAJOR.lower() == self.bump.lower():
+        elif Common.TAG_MAJOR.lower() == self.bump.lower():
             self.version = self.version.bump_major()
-        elif Common.BUMP_MINOR.lower() == self.bump.lower():
+        elif Common.TAG_MINOR.lower() == self.bump.lower():
             self.version = self.version.bump_minor()
-        elif Common.BUMP_PATCH.lower() == self.bump.lower():
+        elif Common.TAG_PATCH.lower() == self.bump.lower():
             self.version = self.version.bump_patch()
-        elif Common.BUMP_PRE_RELEASE.lower() == self.bump.lower():
+        elif Common.TAG_PRERELEASE.lower() == self.bump.lower():
             self.version = self.version.bump_prerelease()
-        elif Common.BUMP_BUILD.lower() in self.bump.lower():
+        elif Common.TAG_BUILD.lower() in self.bump.lower():
             self.version = self.version.bump_build()
         else:
             print(f'unknown bump: {self.version}')
