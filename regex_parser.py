@@ -6,9 +6,11 @@ import json
 import git_utils
 from version_file_parser import VersionFileParser
 import semver
+from common import *
 
 # [^\S] matches any char that is not a non-whitespace = any char that is whitespace
-C_DEFINE_PATTERN = r"(.*#define)([^\S]+)(\S+)([^\S]+\"*)((\d+)|[a-zA-Z]+)(\"*[^\S]*\n|$)"
+C_DEFINE_PATTERN = r"(.*#define)([^\S]+)(\S+)([^\S]+\"*)(\d+|[a-zA-Z]+)(\"*[^\S]*\n|$)"
+# C_DEFINE_PATTERN = r"(.*#define)([^\S]+)(\S+)([^\S]+\"*)(\d+)(\"*[^\S]*\n|$)"
 C_VERSION_TYPE_GROUP = 3
 C_VERSION_VALUE_GROUP = 5
 
@@ -73,9 +75,9 @@ class RegexParser(VersionFileParser):
             print(version_string)
             ver = semver.Version.parse(version_string)
             return ver
-        
+
     @staticmethod
-    def _parse_line(line: str, parser_data: ()):
+    def _parse_line(line: str, parser_data: ()) -> (str, str):
         pattern, version_type_group, version_value_group = parser_data
         result = re.search(pattern, line)
         if result is not None:
@@ -84,11 +86,21 @@ class RegexParser(VersionFileParser):
             return version_type, version_value
         return None, None
 
-    def _update_version_file(self):
+    def _update_version_file(self, version: semver.Version):
         new_lines = []
         for line in self.version_file_content:
             version_type, version_value = self._parse_line(line, self.parser_data)
             if version_type is not None and version_value is not None:
+                if Common.BUMP_MAJOR.lower() in version_type.lower():
+                    self.version_map[version_type] = version.major
+                elif Common.BUMP_MINOR.lower() in version_type.lower():
+                    self.version_map[version_type] = version.minor
+                elif Common.BUMP_PATCH.lower() in version_type.lower():
+                    self.version_map[version_type] = version.patch
+                elif Common.BUMP_PRE_RELEASE.lower() in version_type.lower() and 'prefix' not in version_type.lower():
+                    self.version_map[version_type] = version.prerelease
+                elif Common.BUMP_BUILD.lower() in version_type.lower() and 'prefix' not in version_type.lower():
+                    self.version_map[version_type] = version.build
                 new_lines.append(self._create_line_dynamic(line, self.version_map[version_type]))
             else:
                 new_lines.append(line)
@@ -110,4 +122,5 @@ class RegexParser(VersionFileParser):
                       string=line)
 
     def update(self, version: semver.Version):
-        pass
+        self._update_version_file(version)
+        # pass

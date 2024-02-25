@@ -6,15 +6,11 @@ from regex_parser import RegexParser
 from ros_package_parser import RosPackageParser
 import semver
 import argparse
+from common import *
 
 
 class SoftwareVersion:
-    BUMP_MAJOR = 'major'
-    BUMP_MINOR = 'minor'
-    BUMP_PATCH = 'major'
-    BUMP_PRE_RELEASE = 'prerelease'
-    BUMP_BUILD = 'build'
-    VALID_BUMPS = [BUMP_MAJOR, BUMP_MINOR, BUMP_PATCH, BUMP_PRE_RELEASE, BUMP_BUILD]
+    VALID_BUMPS = [Common.BUMP_MAJOR, Common.BUMP_MINOR, Common.BUMP_PATCH, Common.BUMP_PRE_RELEASE, Common.BUMP_BUILD]
 
     def __init__(self):
         args = self._parse_arguments()
@@ -54,15 +50,15 @@ class SoftwareVersion:
     def _bump(self):
         if self.version is None:
             return
-        elif self.BUMP_MAJOR.lower() == self.bump.lower():
+        elif Common.BUMP_MAJOR.lower() == self.bump.lower():
             self.version = self.version.bump_major()
-        elif self.BUMP_MINOR.lower() == self.bump.lower():
+        elif Common.BUMP_MINOR.lower() == self.bump.lower():
             self.version = self.version.bump_minor()
-        elif self.BUMP_PATCH.lower() == self.bump.lower():
+        elif Common.BUMP_PATCH.lower() == self.bump.lower():
             self.version = self.version.bump_patch()
-        elif self.BUMP_PRE_RELEASE.lower() == self.bump.lower():
+        elif Common.BUMP_PRE_RELEASE.lower() == self.bump.lower():
             self.version = self.version.bump_prerelease()
-        elif self.BUMP_BUILD.lower() in self.bump.lower():
+        elif Common.BUMP_BUILD.lower() in self.bump.lower():
             self.version = self.version.bump_build()
         else:
             print(f'unknown bump: {self.version}')
