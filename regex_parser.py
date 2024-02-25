@@ -96,3 +96,6 @@ class RegexParser(VersionFileParser):
         return re.sub(pattern=ANDROID_DEFINE_PATTERN,
                       repl=fr'\g<1>\g<2>\g<3>{str(version)}\n',
                       string=line)
+
+    def update(self, version: semver.Version):
+        pass

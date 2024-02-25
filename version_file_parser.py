@@ -1,7 +1,14 @@
 import semver
+
+
 class VersionFileParser:
+    LANGUAGES = []
+
     def __init__(self):
-        self.version_map = {}
+        pass
 
     def parse(self) -> semver.Version:
+        return None
+
+    def update(self, version: semver.Version):
         pass
