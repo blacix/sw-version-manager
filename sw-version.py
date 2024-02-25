@@ -10,7 +10,7 @@ from common import *
 
 
 class SoftwareVersion:
-    VALID_BUMPS = [Common.TAG_MAJOR, Common.TAG_MINOR, Common.TAG_PATCH, Common.TAG_PRERELEASE, Common.TAG_BUILD]
+    VALID_BUMPS = [Common.TAG_MAJOR, Common.TAG_MINOR, Common.TAG_PATCH, Common.TAG_PRE_RELEASE, Common.TAG_BUILD]
 
     def __init__(self):
         args = self._parse_arguments()
@@ -56,7 +56,7 @@ class SoftwareVersion:
             self.version = self.version.bump_minor()
         elif Common.TAG_PATCH.lower() == self.bump.lower():
             self.version = self.version.bump_patch()
-        elif Common.TAG_PRERELEASE.lower() == self.bump.lower():
+        elif Common.TAG_PRE_RELEASE.lower() == self.bump.lower():
             self.version = self.version.bump_prerelease()
         elif Common.TAG_BUILD.lower() in self.bump.lower():
             self.version = self.version.bump_build()

@@ -52,8 +52,8 @@ class RegexParser(VersionFileParser):
             major = next((value for key, value in self.version_map.items() if Common.TAG_MAJOR.lower() in str(key).lower()), "")
             minor = next((value for key, value in self.version_map.items() if Common.TAG_MINOR.lower() in str(key).lower()), "")
             patch = next((value for key, value in self.version_map.items() if Common.TAG_PATCH.lower() in str(key).lower()), "")
-            pre_release_prefix = next((value for key, value in self.version_map.items() if Common.TAG_PRERELEASE_PREFIX.lower() in str(key).lower()), "")
-            pre_release = next((value for key, value in self.version_map.items() if Common.TAG_PRERELEASE.lower() in str(key).lower() and Common.TAG_PREFIX.lower() not in str(key).lower()), "")
+            pre_release_prefix = next((value for key, value in self.version_map.items() if Common.TAG_PRE_RELEASE_PREFIX.lower() in str(key).lower()), "")
+            pre_release = next((value for key, value in self.version_map.items() if Common.TAG_PRE_RELEASE.lower() in str(key).lower() and Common.TAG_PREFIX.lower() not in str(key).lower()), "")
             build_prefix = next((value for key, value in self.version_map.items() if Common.TAG_BUILD_PREFIX.lower() in str(key).lower()), "")
             build = next((value for key, value in self.version_map.items() if Common.TAG_BUILD.lower() in str(key).lower() and Common.TAG_PREFIX.lower() not in str(key).lower()), "")
             version_string = str(major) + "." + str(minor) + "." + str(patch)
@@ -95,7 +95,7 @@ class RegexParser(VersionFileParser):
                     self.version_map[version_type] = version.minor
                 elif Common.TAG_PATCH.lower() in version_type.lower():
                     self.version_map[version_type] = version.patch
-                elif Common.TAG_PRERELEASE.lower() in version_type.lower() and 'prefix' not in version_type.lower():
+                elif Common.TAG_PRE_RELEASE.lower() in version_type.lower() and 'prefix' not in version_type.lower():
                     if version.prerelease is not None:
                         numeric_prerelease = None
                         for identifier in version.prerelease:
