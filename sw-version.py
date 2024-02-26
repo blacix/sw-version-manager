@@ -82,11 +82,6 @@ class SoftwareVersion:
             print('Parse error')
             return -1
 
-        # # get version object from version map
-        # map = self.version.to_dict()
-        # map['build'] = None
-        # self.version = semver.Version(**map)
-
         pre_bump_git_tag = self.git_tag_prefix + str(self.version)
         if self.check_git_tag:
             if git_utils.tag_on_current_commit(pre_bump_git_tag):
@@ -97,6 +92,31 @@ class SoftwareVersion:
         if self.bump:
             self._bump()
             self.parser.update(self.version)
+        else:
+            # When a mandatory version is bumped with semver, the optional parts with the value 0
+            # are emitted from the version object.
+            # When a string contains the optional 0 parts, and it is parsed with semver, the version object will contain
+            # the optional 0 parts.
+            # This can be an issue when comparing git tags when we don't bump any version, just parse a string with
+            # optional parts being 0, e.g. we can have a tag: 0.0.0-0+0
+
+            # emit optional zero parts
+            # TODO method for this
+            map = self.version.to_dict()
+            numeric_pre_release = ""
+            for identifier in map[Common.TAG_PRE_RELEASE]:
+                if identifier.isdigit():
+                    numeric_pre_release += identifier
+            if int(numeric_pre_release) == 0:
+                map[Common.TAG_PRE_RELEASE] = None
+
+            numeric_build = ""
+            for identifier in map[Common.TAG_BUILD]:
+                if identifier.isdigit():
+                    numeric_build += identifier
+            if int(numeric_build) == 0:
+                map[Common.TAG_BUILD] = None
+            self.version = semver.Version(**map)
 
         self.git_tag = self.git_tag_prefix + str(self.version)
         if self.create_git_tag:

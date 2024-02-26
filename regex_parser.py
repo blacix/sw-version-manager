@@ -47,39 +47,37 @@ class RegexParser(VersionFileParser):
                 self.version_file_content.append(line)
 
             # TODO get these in the for loop
+            # get mandatory parts of the version
             major = next(
                 (value for key, value in self.version_map.items() if Common.TAG_MAJOR.lower() in str(key).lower()), "")
             minor = next(
                 (value for key, value in self.version_map.items() if Common.TAG_MINOR.lower() in str(key).lower()), "")
             patch = next(
                 (value for key, value in self.version_map.items() if Common.TAG_PATCH.lower() in str(key).lower()), "")
-            # pre_release_prefix = next((value for key, value in self.version_map.items() if
-            #                            Common.TAG_PRE_RELEASE_PREFIX.lower() in str(key).lower()), "")
+            version_string = str(major) + "." + str(minor) + "." + str(patch)
+
+            # get optional parts of the version
+            # if the header file contains a prefix, save it even if it is not specified
+            if self.pre_release_prefix is None:
+                self.pre_release_prefix = next((value for key, value in self.version_map.items() if
+                                                Common.TAG_PRE_RELEASE_PREFIX.lower() in str(key).lower()), "")
             pre_release = next((value for key, value in self.version_map.items() if
                                 Common.TAG_PRE_RELEASE.lower() in str(
                                     key).lower() and Common.TAG_PREFIX.lower() not in str(key).lower()), "")
-            # build_prefix = next((value for key, value in self.version_map.items() if
-            #                      Common.TAG_BUILD_PREFIX.lower() in str(key).lower()), "")
+            # if the header file contains a prefix, save it even if it is not specified
+            if self.build_prefix is None:
+                self.build_prefix = next((value for key, value in self.version_map.items() if
+                                          Common.TAG_BUILD_PREFIX.lower() in str(key).lower()), "")
             build = next((value for key, value in self.version_map.items() if
                           Common.TAG_BUILD.lower() in str(key).lower() and Common.TAG_PREFIX.lower() not in str(
                               key).lower()), "")
-            version_string = str(major) + "." + str(minor) + "." + str(patch)
-
-            # When a mandatory version is bumped with semver, the optional parts with the value 0
-            # are emitted from the version object.
-            # When a string contains the optional 0 parts, and it is parsed with semver, the version object will contain
-            # the optional 0 parts.
-            # This can be an issue when comparing git tags.
-            # The solution is that we also always omit the optional 0 parts when parsing a version file.
-
-            # don't add optional 0 version to string, so git tag will not contain it
-            if len(pre_release) > 0 and int(pre_release) != 0:
+            # add the optional part to the version string
+            if len(pre_release) > 0:
                 version_string += "-"
                 if self.pre_release_prefix is not None and len(self.pre_release_prefix) > 0:
                     version_string += self.pre_release_prefix + "."
                 version_string += str(pre_release)
-            # don't add optional 0 version to string, so git tag will not contain it
-            if len(build) > 0 and int(build) != 0:
+            if len(build) > 0:
                 version_string += "+"
                 if self.build_prefix is not None and len(self.build_prefix) > 0:
                     version_string += self.build_prefix + "."
