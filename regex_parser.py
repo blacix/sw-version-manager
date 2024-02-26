@@ -58,12 +58,21 @@ class RegexParser(VersionFileParser):
             build = next((value for key, value in self.version_map.items() if Common.TAG_BUILD.lower() in str(key).lower() and Common.TAG_PREFIX.lower() not in str(key).lower()), "")
             version_string = str(major) + "." + str(minor) + "." + str(patch)
 
-            if len(pre_release) > 0:
+            # When a mandatory version is bumped with semver, the optional parts with the value 0
+            # are emitted from the version object.
+            # When a string contains the optional 0 parts, and it is parsed with semver, the version object will contain
+            # the optional 0 parts.
+            # This can be an issue when comparing git tags.
+            # The solution is that we also always omit the optional 0 parts when parsing a version file.
+
+            # don't add optional 0 version to string, so git tag will not contain it
+            if len(pre_release) > 0 and int(pre_release) != 0:
                 version_string += "-"
                 if len(pre_release_prefix) > 0:
                     version_string += pre_release_prefix + "."
                 version_string += str(pre_release)
-            if len(build) > 0:
+            # don't add optional 0 version to string, so git tag will not contain it
+            if len(build) > 0 and int(build) != 0:
                 version_string += "+"
                 if len(build_prefix) > 0:
                     version_string += build_prefix + "."

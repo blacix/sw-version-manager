@@ -73,10 +73,12 @@ class SoftwareVersion:
             print('Parse error')
             return -1
 
+        # # get version object from version map
+        # map = self.version.to_dict()
+        # map['build'] = None
+        # self.version = semver.Version(**map)
 
         pre_bump_git_tag = self.git_tag_prefix + str(self.version)
-        ver = semver.Version.parse('0.0.11')
-        print(ver.compare(self.version))
         if self.check_git_tag:
             if git_utils.tag_on_current_commit(pre_bump_git_tag):
                 self.bump = False
