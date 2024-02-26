@@ -25,8 +25,6 @@ class RegexParser(VersionFileParser):
         self.language = language
         self.version_file = version_file
         self.version_file_content = []
-        # all tags from config
-        self.version_tags = []
         self.version_map = {}
 
         if self.language == 'c':
@@ -52,9 +50,9 @@ class RegexParser(VersionFileParser):
             major = next((value for key, value in self.version_map.items() if Common.TAG_MAJOR.lower() in str(key).lower()), "")
             minor = next((value for key, value in self.version_map.items() if Common.TAG_MINOR.lower() in str(key).lower()), "")
             patch = next((value for key, value in self.version_map.items() if Common.TAG_PATCH.lower() in str(key).lower()), "")
-            pre_release_prefix = next((value for key, value in self.version_map.items() if Common.TAG_PRE_RELEASE_PREFIX.lower() in str(key).lower()), "")
+            self.pre_release_prefix = next((value for key, value in self.version_map.items() if Common.TAG_PRE_RELEASE_PREFIX.lower() in str(key).lower()), "")
             pre_release = next((value for key, value in self.version_map.items() if Common.TAG_PRE_RELEASE.lower() in str(key).lower() and Common.TAG_PREFIX.lower() not in str(key).lower()), "")
-            build_prefix = next((value for key, value in self.version_map.items() if Common.TAG_BUILD_PREFIX.lower() in str(key).lower()), "")
+            self.build_prefix = next((value for key, value in self.version_map.items() if Common.TAG_BUILD_PREFIX.lower() in str(key).lower()), "")
             build = next((value for key, value in self.version_map.items() if Common.TAG_BUILD.lower() in str(key).lower() and Common.TAG_PREFIX.lower() not in str(key).lower()), "")
             version_string = str(major) + "." + str(minor) + "." + str(patch)
 
@@ -68,14 +66,14 @@ class RegexParser(VersionFileParser):
             # don't add optional 0 version to string, so git tag will not contain it
             if len(pre_release) > 0 and int(pre_release) != 0:
                 version_string += "-"
-                if len(pre_release_prefix) > 0:
-                    version_string += pre_release_prefix + "."
+                if len(self.pre_release_prefix) > 0:
+                    version_string += self.pre_release_prefix + "."
                 version_string += str(pre_release)
             # don't add optional 0 version to string, so git tag will not contain it
             if len(build) > 0 and int(build) != 0:
                 version_string += "+"
-                if len(build_prefix) > 0:
-                    version_string += build_prefix + "."
+                if len(self.build_prefix) > 0:
+                    version_string += self.build_prefix + "."
                 version_string += str(build)
             # print(version_string)
             ver = semver.Version.parse(version_string)

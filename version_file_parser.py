@@ -5,7 +5,8 @@ class VersionFileParser:
     LANGUAGES = []
 
     def __init__(self):
-        pass
+        self.pre_release_prefix = ''
+        self.build_prefix = ''
 
     def parse(self) -> semver.Version:
         return None

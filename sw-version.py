@@ -60,9 +60,15 @@ class SoftwareVersion:
         elif Common.TAG_PATCH.lower() == self.bump.lower():
             self.version = self.version.bump_patch()
         elif Common.TAG_PRE_RELEASE.lower() == self.bump.lower():
-            self.version = self.version.bump_prerelease()
+            if len(self.parser.pre_release_prefix) > 0:
+                self.version = self.version.bump_prerelease(self.parser.pre_release_prefix)
+            else:
+                self.version = self.version.bump_prerelease()
         elif Common.TAG_BUILD.lower() in self.bump.lower():
-            self.version = self.version.bump_build()
+            if len(self.parser.pre_release_prefix) > 0:
+                self.version = self.version.bump_build(self.parser.build_prefix)
+            else:
+                self.version = self.version.bump_build()
         else:
             print(f'unknown bump: {self.version}')
             pass
