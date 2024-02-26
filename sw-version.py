@@ -23,10 +23,13 @@ class SoftwareVersion:
         self.git_tag_prefix = args.tag_prefix
         self.git_tag = self.git_tag_prefix
         self.check_git_tag = args.check_tag
+        self.pre_release_prefix = args.pre_release_prefix
+        self.build_prefix = args.build_prefix
+
         self.version: semver.Version = None
 
         if self.language in RegexParser.LANGUAGES:
-            self.parser = RegexParser(self.language, self.version_file)
+            self.parser = RegexParser(self.language, self.version_file, self.pre_release_prefix, self.build_prefix)
         elif self.language in RosPackageParser.LANGUAGES:
             self.parser = RosPackageParser(self.version_file)
         else:
@@ -35,19 +38,19 @@ class SoftwareVersion:
 
     def _parse_arguments(self):
         parser = argparse.ArgumentParser(description='Command-line arguments example')
-
         # Mandatory arguments
         parser.add_argument('--file', required=True, help='Specify the filename')
-        parser.add_argument('--lang', required=True, help='Specify the language')
-
+        parser.add_argument('--lang', choices=RegexParser.LANGUAGES + RosPackageParser.LANGUAGES,
+                            required=True, help='Specify the language')
         # Optional arguments without values
         parser.add_argument('--commit', action='store_true', help='commit the updated version file')
         parser.add_argument('--tag', action='store_true', help='add a tag with the version to git')
         parser.add_argument('--tag_prefix', default='', help='Prefix for git tag')
-
         parser.add_argument('--bump', choices=self.VALID_BUMPS, help='Specify the tag to bump')
-        parser.add_argument('--check_tag', action='store_true', help='checks is the tag is already on the current commit')
-
+        parser.add_argument('--check_tag', action='store_true',
+                            help='checks is the tag is already on the current commit')
+        parser.add_argument('--pre_release_prefix', default=None, help='The prefix for the pre-release number part')
+        parser.add_argument('--build_prefix', default=None, help='The prefix for the build number part')
         return parser.parse_args()
 
     def _bump(self):
@@ -60,13 +63,13 @@ class SoftwareVersion:
         elif Common.TAG_PATCH.lower() == self.bump.lower():
             self.version = self.version.bump_patch()
         elif Common.TAG_PRE_RELEASE.lower() == self.bump.lower():
-            if len(self.parser.pre_release_prefix) > 0:
-                self.version = self.version.bump_prerelease(self.parser.pre_release_prefix)
+            if self.pre_release_prefix is not None:
+                self.version = self.version.bump_prerelease(self.pre_release_prefix)
             else:
                 self.version = self.version.bump_prerelease()
         elif Common.TAG_BUILD.lower() in self.bump.lower():
-            if len(self.parser.pre_release_prefix) > 0:
-                self.version = self.version.bump_build(self.parser.build_prefix)
+            if self.build_prefix is not None:
+                self.version = self.version.bump_build(self.build_prefix)
             else:
                 self.version = self.version.bump_build()
         else:

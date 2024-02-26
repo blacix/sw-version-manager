@@ -20,8 +20,8 @@ ANDROID_PARSER_DATA = (ANDROID_DEFINE_PATTERN, ANDROID_VERSION_TYPE_GROUP, ANDRO
 class RegexParser(VersionFileParser):
     LANGUAGES = ['c', 'cpp', 'android']
 
-    def __init__(self, language: str, version_file: str):
-        super().__init__()
+    def __init__(self, language: str, version_file: str, pre_release_prefix: str, build_prefix: str):
+        super().__init__(pre_release_prefix, build_prefix)
         self.language = language
         self.version_file = version_file
         self.version_file_content = []
@@ -47,13 +47,22 @@ class RegexParser(VersionFileParser):
                 self.version_file_content.append(line)
 
             # TODO get these in the for loop
-            major = next((value for key, value in self.version_map.items() if Common.TAG_MAJOR.lower() in str(key).lower()), "")
-            minor = next((value for key, value in self.version_map.items() if Common.TAG_MINOR.lower() in str(key).lower()), "")
-            patch = next((value for key, value in self.version_map.items() if Common.TAG_PATCH.lower() in str(key).lower()), "")
-            self.pre_release_prefix = next((value for key, value in self.version_map.items() if Common.TAG_PRE_RELEASE_PREFIX.lower() in str(key).lower()), "")
-            pre_release = next((value for key, value in self.version_map.items() if Common.TAG_PRE_RELEASE.lower() in str(key).lower() and Common.TAG_PREFIX.lower() not in str(key).lower()), "")
-            self.build_prefix = next((value for key, value in self.version_map.items() if Common.TAG_BUILD_PREFIX.lower() in str(key).lower()), "")
-            build = next((value for key, value in self.version_map.items() if Common.TAG_BUILD.lower() in str(key).lower() and Common.TAG_PREFIX.lower() not in str(key).lower()), "")
+            major = next(
+                (value for key, value in self.version_map.items() if Common.TAG_MAJOR.lower() in str(key).lower()), "")
+            minor = next(
+                (value for key, value in self.version_map.items() if Common.TAG_MINOR.lower() in str(key).lower()), "")
+            patch = next(
+                (value for key, value in self.version_map.items() if Common.TAG_PATCH.lower() in str(key).lower()), "")
+            # pre_release_prefix = next((value for key, value in self.version_map.items() if
+            #                            Common.TAG_PRE_RELEASE_PREFIX.lower() in str(key).lower()), "")
+            pre_release = next((value for key, value in self.version_map.items() if
+                                Common.TAG_PRE_RELEASE.lower() in str(
+                                    key).lower() and Common.TAG_PREFIX.lower() not in str(key).lower()), "")
+            # build_prefix = next((value for key, value in self.version_map.items() if
+            #                      Common.TAG_BUILD_PREFIX.lower() in str(key).lower()), "")
+            build = next((value for key, value in self.version_map.items() if
+                          Common.TAG_BUILD.lower() in str(key).lower() and Common.TAG_PREFIX.lower() not in str(
+                              key).lower()), "")
             version_string = str(major) + "." + str(minor) + "." + str(patch)
 
             # When a mandatory version is bumped with semver, the optional parts with the value 0
@@ -66,13 +75,13 @@ class RegexParser(VersionFileParser):
             # don't add optional 0 version to string, so git tag will not contain it
             if len(pre_release) > 0 and int(pre_release) != 0:
                 version_string += "-"
-                if len(self.pre_release_prefix) > 0:
+                if self.pre_release_prefix is not None and len(self.pre_release_prefix) > 0:
                     version_string += self.pre_release_prefix + "."
                 version_string += str(pre_release)
             # don't add optional 0 version to string, so git tag will not contain it
             if len(build) > 0 and int(build) != 0:
                 version_string += "+"
-                if len(self.build_prefix) > 0:
+                if self.build_prefix is not None and len(self.build_prefix) > 0:
                     version_string += self.build_prefix + "."
                 version_string += str(build)
             # print(version_string)
@@ -102,6 +111,9 @@ class RegexParser(VersionFileParser):
                     self.version_map[version_type] = version.minor
                 elif Common.TAG_PATCH.lower() in version_type.lower():
                     self.version_map[version_type] = version.patch
+                elif Common.TAG_PRE_RELEASE_PREFIX.lower() in version_type.lower():
+                    if self.pre_release_prefix is not None:
+                        self.version_map[version_type] = self.pre_release_prefix
                 elif Common.TAG_PRE_RELEASE.lower() in version_type.lower() and Common.TAG_PREFIX.lower() not in version_type.lower():
                     if version.prerelease is not None:
                         numeric_prerelease = ""
@@ -111,6 +123,9 @@ class RegexParser(VersionFileParser):
                         self.version_map[version_type] = numeric_prerelease
                     else:
                         self.version_map[version_type] = 0
+                elif Common.TAG_BUILD_PREFIX.lower() in version_type.lower():
+                    if self.build_prefix is not None:
+                        self.version_map[version_type] = self.build_prefix
                 elif Common.TAG_BUILD.lower() in version_type.lower() and Common.TAG_PREFIX.lower() not in version_type.lower():
                     if version.build is not None:
                         numeric_build = ""
