@@ -10,7 +10,6 @@ class RosPackageParser(VersionFileParser):
     def __init__(self, version_file):
         super().__init__()
         self.version_file = version_file
-        self.version: semver.Version = None
         # self.xml_element_tree: ET.ElementTree = None
         # self.xml_version_tag: ET.Element = None
         self.lxml_tree: etree.ElementTree = None

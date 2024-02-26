@@ -4,6 +4,7 @@ import git_utils
 from version_file_parser import VersionFileParser
 from regex_parser import RegexParser
 from ros_package_parser import RosPackageParser
+from c_string_parser import CStringParser
 import semver
 import argparse
 from common import *
@@ -32,6 +33,8 @@ class SoftwareVersion:
             self.parser = RegexParser(self.language, self.version_file, self.pre_release_prefix, self.build_prefix)
         elif self.language in RosPackageParser.LANGUAGES:
             self.parser = RosPackageParser(self.version_file)
+        elif self.language in CStringParser.LANGUAGES:
+            self.parser = CStringParser(self.version_file)
         else:
             self.parser: VersionFileParser = VersionFileParser()
             print(f'no parser for language: {self.language}')
@@ -40,7 +43,8 @@ class SoftwareVersion:
         parser = argparse.ArgumentParser(description='Command-line arguments example')
         # Mandatory arguments
         parser.add_argument('--file', required=True, help='Specify the filename')
-        parser.add_argument('--lang', choices=RegexParser.LANGUAGES + RosPackageParser.LANGUAGES,
+        parser.add_argument('--lang',
+                            choices=RegexParser.LANGUAGES + RosPackageParser.LANGUAGES + CStringParser.LANGUAGES,
                             required=True, help='Specify the language')
         # Optional arguments without values
         parser.add_argument('--commit', action='store_true', help='commit the updated version file')
