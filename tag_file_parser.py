@@ -3,22 +3,22 @@ from version_file_parser import VersionFileParser
 import semver
 from common import *
 
-# [^\S] matches any char that is not a non-whitespace = any char that is whitespace
-C_DEFINE_PATTERN = r"(.*#define)([^\S]+)(\S+)([^\S]+\"*)(\d+|[a-zA-Z]+)(\"*[^\S]*\n|$)"
-# C_DEFINE_PATTERN = r"(.*#define)([^\S]+)(\S+)([^\S]+\"*)(\d+)(\"*[^\S]*\n|$)"
-C_VERSION_TYPE_GROUP = 3
-C_VERSION_VALUE_GROUP = 5
-
-ANDROID_DEFINE_PATTERN = r"([^\S]*)(\S+)(=)([^\S]*)(\d+)([^\S]*\n|$)"
-ANDROID_VERSION_TYPE_GROUP = 2
-ANDROID_VERSION_VALUE_GROUP = 5
-
-C_PARSER_DATA = (C_DEFINE_PATTERN, C_VERSION_TYPE_GROUP, C_VERSION_VALUE_GROUP)
-ANDROID_PARSER_DATA = (ANDROID_DEFINE_PATTERN, ANDROID_VERSION_TYPE_GROUP, ANDROID_VERSION_VALUE_GROUP)
-
 
 class TagFileParser(VersionFileParser):
     LANGUAGES = ['c', 'cpp', 'android']
+
+    # [^\S] matches any char that is not a non-whitespace = any char that is whitespace
+    C_DEFINE_PATTERN = r"(.*#define)([^\S]+)(\S+)([^\S]+\"*)(\d+|[a-zA-Z]+)(\"*[^\S]*\n|$)"
+    # C_DEFINE_PATTERN = r"(.*#define)([^\S]+)(\S+)([^\S]+\"*)(\d+)(\"*[^\S]*\n|$)"
+    C_VERSION_TYPE_GROUP = 3
+    C_VERSION_VALUE_GROUP = 5
+
+    ANDROID_DEFINE_PATTERN = r"([^\S]*)(\S+)(=)([^\S]*)(\d+)([^\S]*\n|$)"
+    ANDROID_VERSION_TYPE_GROUP = 2
+    ANDROID_VERSION_VALUE_GROUP = 5
+
+    C_PARSER_DATA = (C_DEFINE_PATTERN, C_VERSION_TYPE_GROUP, C_VERSION_VALUE_GROUP)
+    ANDROID_PARSER_DATA = (ANDROID_DEFINE_PATTERN, ANDROID_VERSION_TYPE_GROUP, ANDROID_VERSION_VALUE_GROUP)
 
     def __init__(self, language: str, version_file: str, pre_release_prefix: str, build_prefix: str):
         super().__init__(pre_release_prefix, build_prefix)
@@ -28,17 +28,18 @@ class TagFileParser(VersionFileParser):
         self.version_map = {}
 
         if self.language == 'c':
-            self.parser_data = C_PARSER_DATA
+            self.parser_data = self.C_PARSER_DATA
             self._create_line_dynamic = self._create_c_line
         elif self.language == 'cpp':
             pass
         elif self.language == 'android':
-            self.parser_data = ANDROID_PARSER_DATA
+            self.parser_data = self.ANDROID_PARSER_DATA
             self._create_line_dynamic = self._create_android_line
         else:
             raise Exception(f'unknown language: {self.language}')
 
     def parse(self) -> semver.Version:
+        version: semver.Version = None
         with open(self.version_file, 'r') as file:
             for line in file:
                 version_type, version_value = self._parse_line(line, self.parser_data)
@@ -82,9 +83,11 @@ class TagFileParser(VersionFileParser):
                 if self.build_prefix is not None and len(self.build_prefix) > 0:
                     version_string += self.build_prefix + "."
                 version_string += str(build)
-            # print(version_string)
-            ver = semver.Version.parse(version_string)
-            return ver
+            try:
+                version = semver.Version.parse(version_string)
+            except (ValueError, TypeError) as e:
+                print(e)
+            return version
 
     @staticmethod
     def _parse_line(line: str, parser_data: ()) -> (str, str):
@@ -142,15 +145,13 @@ class TagFileParser(VersionFileParser):
             file.writelines(new_lines)
 
     # TODO does not work with inline comments
-    @staticmethod
-    def _create_c_line(line: str, version: int):
-        return re.sub(pattern=C_DEFINE_PATTERN,
+    def _create_c_line(self, line: str, version: int):
+        return re.sub(pattern=self.C_DEFINE_PATTERN,
                       repl=fr'\g<1>\g<2>\g<3>\g<4>{version}\g<6>',
                       string=line)
 
-    @staticmethod
-    def _create_android_line(line: str, version: int):
-        return re.sub(pattern=ANDROID_DEFINE_PATTERN,
+    def _create_android_line(self, line: str, version: int):
+        return re.sub(pattern=self.ANDROID_DEFINE_PATTERN,
                       repl=fr'\g<1>\g<2>\g<3>{str(version)}\n',
                       string=line)
 

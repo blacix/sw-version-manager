@@ -16,6 +16,7 @@ class RosPackageParser(VersionFileParser):
         self.lxml_version_tag: etree.Element = None
 
     def parse(self) -> semver.Version:
+        version: semver.Version = None
         # Parse the XML data from the file
         # self.xml_element_tree = ET.parse(self.version_file)
         # root = self.xml_element_tree.getroot()
@@ -24,7 +25,11 @@ class RosPackageParser(VersionFileParser):
         # return semver.Version.parse(self.xml_version_tag.text)
         self.lxml_tree = etree.parse(self.version_file)
         self.lxml_version_tag = self.lxml_tree.find('.//version')
-        return semver.Version.parse(self.lxml_version_tag.text)
+        try:
+            version = semver.Version.parse(self.lxml_version_tag.text)
+        except (ValueError, TypeError) as e:
+            print(e)
+        return version
 
     def update(self, version: semver.Version):
         # if self.xml_element_tree is not None and self.xml_version_tag is not None:
