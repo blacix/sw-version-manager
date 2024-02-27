@@ -3,7 +3,7 @@ import semver
 import re
 
 
-class CStringParser(VersionFileParser):
+class StringFileParser(VersionFileParser):
     LANGUAGES = ['c_str']
 
     def __init__(self, version_file):

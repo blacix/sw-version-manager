@@ -17,7 +17,7 @@ C_PARSER_DATA = (C_DEFINE_PATTERN, C_VERSION_TYPE_GROUP, C_VERSION_VALUE_GROUP)
 ANDROID_PARSER_DATA = (ANDROID_DEFINE_PATTERN, ANDROID_VERSION_TYPE_GROUP, ANDROID_VERSION_VALUE_GROUP)
 
 
-class RegexParser(VersionFileParser):
+class TagFileParser(VersionFileParser):
     LANGUAGES = ['c', 'cpp', 'android']
 
     def __init__(self, language: str, version_file: str, pre_release_prefix: str, build_prefix: str):

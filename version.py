@@ -5,7 +5,7 @@ import subprocess
 import json
 import git_utils
 from version_file_parser import VersionFileParser
-from regex_parser import RegexParser
+from tag_file_parser import TagFileParser
 import semver
 
 MIN_ARG_CNT = 3
@@ -91,8 +91,8 @@ class VersionManager:
             raise Exception(f'unknown language: {self.language}')
 
         # testng with regex parser
-        if self.language in RegexParser.LANGUAGES:
-            self.parser = RegexParser(self.language, self.version_file)
+        if self.language in TagFileParser.LANGUAGES:
+            self.parser = TagFileParser(self.language, self.version_file)
 
         # apply arguments
         # Note: arguments can override settings

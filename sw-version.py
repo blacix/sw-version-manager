@@ -2,9 +2,9 @@ import os
 import sys
 import git_utils
 from version_file_parser import VersionFileParser
-from regex_parser import RegexParser
+from tag_file_parser import TagFileParser
 from ros_package_parser import RosPackageParser
-from c_string_parser import CStringParser
+from string_file_parser import StringFileParser
 import semver
 import argparse
 from common import *
@@ -29,12 +29,12 @@ class SoftwareVersion:
 
         self.version: semver.Version = None
 
-        if self.language in RegexParser.LANGUAGES:
-            self.parser = RegexParser(self.language, self.version_file, self.pre_release_prefix, self.build_prefix)
+        if self.language in TagFileParser.LANGUAGES:
+            self.parser = TagFileParser(self.language, self.version_file, self.pre_release_prefix, self.build_prefix)
         elif self.language in RosPackageParser.LANGUAGES:
             self.parser = RosPackageParser(self.version_file)
-        elif self.language in CStringParser.LANGUAGES:
-            self.parser = CStringParser(self.version_file)
+        elif self.language in StringFileParser.LANGUAGES:
+            self.parser = StringFileParser(self.version_file)
         else:
             self.parser: VersionFileParser = VersionFileParser()
             print(f'no parser for language: {self.language}')
@@ -44,7 +44,7 @@ class SoftwareVersion:
         # Mandatory arguments
         parser.add_argument('--file', required=True, help='Specify the filename')
         parser.add_argument('--lang',
-                            choices=RegexParser.LANGUAGES + RosPackageParser.LANGUAGES + CStringParser.LANGUAGES,
+                            choices=TagFileParser.LANGUAGES + RosPackageParser.LANGUAGES + StringFileParser.LANGUAGES,
                             required=True, help='Specify the language')
         # Optional arguments without values
         parser.add_argument('--commit', action='store_true', help='commit the updated version file')
