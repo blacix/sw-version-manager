@@ -126,11 +126,10 @@ class SoftwareVersion:
 
         self.git_tag = self.git_tag_prefix + str(self.version)
         if self.create_git_tag:
-            print(f'tag: {self.git_tag}')
+            self.git.create_tag(self.git_tag)
 
         if self.commit:
-            # git_utils.commit_file(self.version_file, self.git_tag)
-            print(f'commit: {self.version_file} {self.git_tag}')
+            self.git.commit_file(self.version_file, self.git_tag)
 
         result = str(self.git_tag_prefix + str(self.version))
         print(result)

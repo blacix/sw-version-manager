@@ -13,10 +13,12 @@ class GitUtils:
         return tag_on_current_commit
 
     def commit_file(self, file_name: str, commit_message: str):
+        print(f'commit_file: {file_name} {commit_message}')
         self.repo.index.add(file_name)
         self.repo.index.commit(commit_message)
         self.repo.git.push('origin', self.repo.active_branch.name)
 
     def create_tag(self, tag_name):
+        print(f'tag: {tag_name}')
         self.repo.create_tag(tag_name, tag_name)
         self.repo.git.push('origin', tag_name)

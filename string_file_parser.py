@@ -5,7 +5,7 @@ import re
 
 class StringFileParser(VersionFileParser):
     LANGUAGES = ['c_str']
-    C_DEFINE_PATTERN = r'(.*#define\s+\w+VERSION\s+")(\S+)("\s*)(\n|$)'
+    C_DEFINE_PATTERN = r'(.*#define\s+\w+VERSION\s+")(\S+)("\s*)(\n.*|$)'
     C_VERSION_STRING_GROUP = 2
 
     def __init__(self, version_file):
@@ -36,7 +36,7 @@ class StringFileParser(VersionFileParser):
         for line in self.version_file_content:
             if re.match(pattern, line):
                 line = re.sub(pattern=self.C_DEFINE_PATTERN,
-                              repl=fr'\g<1>\g<2>{str(version)}\g<4>',
+                              repl=fr'\g<1>{str(version)}\g<3>\g<4>',
                               string=line)
             new_lines.append(line)
         with open(self.version_file, 'w') as file:
