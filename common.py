@@ -24,12 +24,13 @@ class Common:
     @staticmethod
     def emit_optional_zero_parts(version: semver.Version) -> semver.Version:
         version_dict = version.to_dict()
-        numeric_pre_release = Common.get_numeric(version_dict[Common.TAG_PRE_RELEASE])
-        if numeric_pre_release == 0:
-            version_dict[Common.TAG_PRE_RELEASE] = None
+        if version_dict[Common.TAG_PRE_RELEASE] is not None:
+            numeric_pre_release = Common.get_numeric(version_dict[Common.TAG_PRE_RELEASE])
+            if numeric_pre_release == 0:
+                version_dict[Common.TAG_PRE_RELEASE] = None
 
-        numeric_build = Common.get_numeric(version_dict[Common.TAG_BUILD])
-        if numeric_build == 0:
-            version_dict[Common.TAG_BUILD] = None
+        if version_dict[Common.TAG_BUILD] is not None:
+            numeric_build = Common.get_numeric(version_dict[Common.TAG_BUILD])
+            if numeric_build == 0:
+                version_dict[Common.TAG_BUILD] = None
         return semver.Version(**version_dict)
-
