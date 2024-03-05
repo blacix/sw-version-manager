@@ -1,9 +1,8 @@
-import os
 import sys
-from git_utils import GitUtils
-import semver
 import argparse
+import semver
 from common import *
+from git_utils import GitUtils
 from parsers.version_file_parser import VersionFileParser
 from parsers.tag_file_parser import TagFileParser
 from parsers.ros_package_parser import RosPackageParser

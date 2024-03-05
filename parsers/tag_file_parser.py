@@ -9,7 +9,6 @@ class TagFileParser(VersionFileParser):
 
     # [^\S] matches any char that is not a non-whitespace = any char that is whitespace
     C_DEFINE_PATTERN = r"(.*#define)([^\S]+)(\S+)([^\S]+\"*)(\d+|[a-zA-Z]+)(\"*[^\S]*\n|$)"
-    # C_DEFINE_PATTERN = r"(.*#define)([^\S]+)(\S+)([^\S]+\"*)(\d+)(\"*[^\S]*\n|$)"
     C_VERSION_TYPE_GROUP = 3
     C_VERSION_VALUE_GROUP = 5
 
