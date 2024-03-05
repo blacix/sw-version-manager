@@ -106,24 +106,7 @@ class SoftwareVersion:
             # the optional 0 parts.
             # This can be an issue when comparing git tags when we don't bump any version, just parse a string with
             # optional parts being 0, e.g. we can have a tag: 0.0.0-0+0
-
-            # emit optional zero parts
-            # TODO method for this
-            version_dict = self.version.to_dict()
-            numeric_pre_release = ""
-            for identifier in version_dict[Common.TAG_PRE_RELEASE]:
-                if identifier.isdigit():
-                    numeric_pre_release += identifier
-            if int(numeric_pre_release) == 0:
-                version_dict[Common.TAG_PRE_RELEASE] = None
-
-            numeric_build = ""
-            for identifier in version_dict[Common.TAG_BUILD]:
-                if identifier.isdigit():
-                    numeric_build += identifier
-            if int(numeric_build) == 0:
-                version_dict[Common.TAG_BUILD] = None
-            self.version = semver.Version(**version_dict)
+            self.version = Common.emit_optional_zero_parts(self.version)
 
         self.git_tag = self.git_tag_prefix + str(self.version)
         if self.commit:
