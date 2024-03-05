@@ -117,11 +117,7 @@ class TagFileParser(VersionFileParser):
                         self.version_map[version_type] = self.pre_release_prefix
                 elif Common.TAG_PRE_RELEASE.lower() in version_type.lower() and Common.TAG_PREFIX.lower() not in version_type.lower():
                     if version.prerelease is not None:
-                        numeric_prerelease = ""
-                        for identifier in version.prerelease:
-                            if identifier.isdigit():
-                                numeric_prerelease += identifier
-                        self.version_map[version_type] = numeric_prerelease
+                        self.version_map[version_type] = Common.get_numeric(version.prerelease)
                     else:
                         self.version_map[version_type] = 0
                 elif Common.TAG_BUILD_PREFIX.lower() in version_type.lower():
@@ -129,11 +125,7 @@ class TagFileParser(VersionFileParser):
                         self.version_map[version_type] = self.build_prefix
                 elif Common.TAG_BUILD.lower() in version_type.lower() and Common.TAG_PREFIX.lower() not in version_type.lower():
                     if version.build is not None:
-                        numeric_build = ""
-                        for identifier in version.build:
-                            if identifier.isdigit():
-                                numeric_build += identifier
-                        self.version_map[version_type] = numeric_build
+                        self.version_map[version_type] = Common.get_numeric(version.build)
                     else:
                         self.version_map[version_type] = 0
 
