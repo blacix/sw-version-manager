@@ -1,6 +1,6 @@
 import os
 import sys
-import git_utils
+from git_utils import GitUtils
 from version_file_parser import VersionFileParser
 from tag_file_parser import TagFileParser
 from ros_package_parser import RosPackageParser
@@ -28,6 +28,8 @@ class SoftwareVersion:
         self.build_prefix = args.build_prefix
 
         self.version: semver.Version = None
+
+        self.git = GitUtils(".")
 
         if self.language in TagFileParser.LANGUAGES:
             self.parser = TagFileParser(self.language, self.version_file, self.pre_release_prefix, self.build_prefix)
@@ -88,7 +90,7 @@ class SoftwareVersion:
 
         pre_bump_git_tag = self.git_tag_prefix + str(self.version)
         if self.check_git_tag:
-            if git_utils.tag_on_current_commit(pre_bump_git_tag):
+            if self.git.check_tag_on_current_commit(pre_bump_git_tag):
                 self.bump = False
                 self.create_git_tag = False
                 self.commit = False
@@ -106,21 +108,21 @@ class SoftwareVersion:
 
             # emit optional zero parts
             # TODO method for this
-            map = self.version.to_dict()
+            version_dict = self.version.to_dict()
             numeric_pre_release = ""
-            for identifier in map[Common.TAG_PRE_RELEASE]:
+            for identifier in version_dict[Common.TAG_PRE_RELEASE]:
                 if identifier.isdigit():
                     numeric_pre_release += identifier
             if int(numeric_pre_release) == 0:
-                map[Common.TAG_PRE_RELEASE] = None
+                version_dict[Common.TAG_PRE_RELEASE] = None
 
             numeric_build = ""
-            for identifier in map[Common.TAG_BUILD]:
+            for identifier in version_dict[Common.TAG_BUILD]:
                 if identifier.isdigit():
                     numeric_build += identifier
             if int(numeric_build) == 0:
-                map[Common.TAG_BUILD] = None
-            self.version = semver.Version(**map)
+                version_dict[Common.TAG_BUILD] = None
+            self.version = semver.Version(**version_dict)
 
         self.git_tag = self.git_tag_prefix + str(self.version)
         if self.create_git_tag:
