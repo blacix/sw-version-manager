@@ -1,7 +1,7 @@
 import re
-from version_file_parser import VersionFileParser
 import semver
 from common import *
+from parsers.version_file_parser import VersionFileParser
 
 
 class TagFileParser(VersionFileParser):

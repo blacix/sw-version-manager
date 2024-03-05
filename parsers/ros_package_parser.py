@@ -1,4 +1,4 @@
-from version_file_parser import VersionFileParser
+from parsers.version_file_parser import VersionFileParser
 import semver
 import xml.etree.ElementTree as ET
 from lxml import etree

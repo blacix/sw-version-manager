@@ -1,13 +1,13 @@
 import os
 import sys
 from git_utils import GitUtils
-from version_file_parser import VersionFileParser
-from tag_file_parser import TagFileParser
-from ros_package_parser import RosPackageParser
-from string_file_parser import StringFileParser
 import semver
 import argparse
 from common import *
+from parsers.version_file_parser import VersionFileParser
+from parsers.tag_file_parser import TagFileParser
+from parsers.ros_package_parser import RosPackageParser
+from parsers.string_file_parser import StringFileParser
 
 
 class SoftwareVersion:
