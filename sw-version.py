@@ -91,6 +91,7 @@ class SoftwareVersion:
         pre_bump_git_tag = self.git_tag_prefix + str(self.version)
         if self.check_git_tag:
             if self.git.check_tag_on_current_commit(pre_bump_git_tag):
+                print(f'tag on current commit: {pre_bump_git_tag}')
                 self.bump = False
                 self.create_git_tag = False
                 self.commit = False
@@ -125,11 +126,11 @@ class SoftwareVersion:
             self.version = semver.Version(**version_dict)
 
         self.git_tag = self.git_tag_prefix + str(self.version)
-        if self.create_git_tag:
-            self.git.create_tag(self.git_tag)
-
         if self.commit:
             self.git.commit_file(self.version_file, self.git_tag)
+
+        if self.create_git_tag:
+            self.git.create_tag(self.git_tag)
 
         result = str(self.git_tag_prefix + str(self.version))
         print(result)

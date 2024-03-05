@@ -20,5 +20,5 @@ class GitUtils:
 
     def create_tag(self, tag_name):
         print(f'tag: {tag_name}')
-        self.repo.create_tag(tag_name, tag_name)
+        self.repo.create_tag(tag_name, message=tag_name)
         self.repo.git.push('origin', tag_name)
