@@ -105,36 +105,38 @@ class TagFileParser(VersionFileParser):
             version_type, version_value = self._parse_line(line, self.parser_data)
             if version_type is not None and version_value is not None:
                 # update version map with new value
-                # TODO separate method
-                if Common.TAG_MAJOR.lower() in version_type.lower():
-                    self.version_map[version_type] = version.major
-                elif Common.TAG_MINOR.lower() in version_type.lower():
-                    self.version_map[version_type] = version.minor
-                elif Common.TAG_PATCH.lower() in version_type.lower():
-                    self.version_map[version_type] = version.patch
-                elif Common.TAG_PRE_RELEASE_PREFIX.lower() in version_type.lower():
-                    if self.pre_release_prefix is not None:
-                        self.version_map[version_type] = self.pre_release_prefix
-                elif Common.TAG_PRE_RELEASE.lower() in version_type.lower() and Common.TAG_PREFIX.lower() not in version_type.lower():
-                    if version.prerelease is not None:
-                        self.version_map[version_type] = Common.get_numeric(version.prerelease)
-                    else:
-                        self.version_map[version_type] = 0
-                elif Common.TAG_BUILD_PREFIX.lower() in version_type.lower():
-                    if self.build_prefix is not None:
-                        self.version_map[version_type] = self.build_prefix
-                elif Common.TAG_BUILD.lower() in version_type.lower() and Common.TAG_PREFIX.lower() not in version_type.lower():
-                    if version.build is not None:
-                        self.version_map[version_type] = Common.get_numeric(version.build)
-                    else:
-                        self.version_map[version_type] = 0
-
+                self.update_version_map(version_type, version)
                 new_lines.append(self._create_line_dynamic(line, self.version_map[version_type]))
             else:
                 new_lines.append(line)
 
         with open(self.version_file, 'w') as file:
             file.writelines(new_lines)
+
+    def update_version_map(self, version_type, version: semver.Version):
+        # TODO separate method
+        if Common.TAG_MAJOR.lower() in version_type.lower():
+            self.version_map[version_type] = version.major
+        elif Common.TAG_MINOR.lower() in version_type.lower():
+            self.version_map[version_type] = version.minor
+        elif Common.TAG_PATCH.lower() in version_type.lower():
+            self.version_map[version_type] = version.patch
+        elif Common.TAG_PRE_RELEASE_PREFIX.lower() in version_type.lower():
+            if self.pre_release_prefix is not None:
+                self.version_map[version_type] = self.pre_release_prefix
+        elif Common.TAG_PRE_RELEASE.lower() in version_type.lower() and Common.TAG_PREFIX.lower() not in version_type.lower():
+            if version.prerelease is not None:
+                self.version_map[version_type] = Common.get_numeric(version.prerelease)
+            else:
+                self.version_map[version_type] = 0
+        elif Common.TAG_BUILD_PREFIX.lower() in version_type.lower():
+            if self.build_prefix is not None:
+                self.version_map[version_type] = self.build_prefix
+        elif Common.TAG_BUILD.lower() in version_type.lower() and Common.TAG_PREFIX.lower() not in version_type.lower():
+            if version.build is not None:
+                self.version_map[version_type] = Common.get_numeric(version.build)
+            else:
+                self.version_map[version_type] = 0
 
     # TODO does not work with inline comments
     def _create_c_line(self, line: str, version: int):
