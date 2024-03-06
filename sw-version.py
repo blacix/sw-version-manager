@@ -25,10 +25,11 @@ class SoftwareVersion:
         self.check_git_tag = args.check_tag
         self.pre_release_prefix = args.pre_release_prefix
         self.build_prefix = args.build_prefix
+        self.repo_path = args.repo
 
         self.version: semver.Version = None
 
-        self.git = GitUtils(".")
+        self.git: GitUtils = None
 
         if self.language in TagFileParser.LANGUAGES:
             self.parser = TagFileParser(self.language, self.version_file, self.pre_release_prefix, self.build_prefix)
@@ -56,6 +57,7 @@ class SoftwareVersion:
                             help='checks is the tag is already on the current commit')
         parser.add_argument('--pre_release_prefix', default=None, help='The prefix for the pre-release number part')
         parser.add_argument('--build_prefix', default=None, help='The prefix for the build number part')
+        parser.add_argument('--repo', default=".", help='Path to the git repository')
         return parser.parse_args()
 
     def _bump(self):
@@ -107,6 +109,8 @@ class SoftwareVersion:
             # optional parts being 0, e.g. we can have a tag: 0.0.0-0+0
             self.version = Common.emit_optional_zero_parts(self.version)
 
+        if (self.commit or self.create_git_tag) and self.git is None:
+            self.git = GitUtils(self.repo_path)
         self.git_tag = self.git_tag_prefix + str(self.version)
         if self.commit:
             self.git.commit_file(self.version_file, self.git_tag)
