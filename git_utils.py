@@ -1,5 +1,6 @@
 import git
 import argparse
+import sys
 
 
 class GitUtils:
@@ -29,10 +30,10 @@ class GitUtils:
 def bash_exit(result: bool):
     if result:
         print('true')
-        exit(0)
+        sys.exit(0)
     else:
         print('false')
-        exit(1)
+        sys.exit(1)
 
 
 if __name__ == '__main__':
@@ -54,4 +55,4 @@ if __name__ == '__main__':
     if args.check:
         bash_exit(gitUtils.check_tag_on_current_commit(args.tag))
 
-    exit(0)
+    sys.exit(0)
