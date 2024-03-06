@@ -33,7 +33,7 @@ def bash_exit(result: bool):
         sys.exit(0)
     else:
         print('false')
-        sys.exit(1)
+        sys.exit(0)
 
 
 if __name__ == '__main__':
