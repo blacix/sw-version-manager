@@ -89,8 +89,11 @@ class SoftwareVersion:
             print('Parse error')
             return -1
 
-        pre_bump_git_tag = self.git_tag_prefix + str(self.version)
+        if (self.commit or self.create_git_tag or self.check_git_tag) and self.git is None:
+            self.git = GitUtils(self.repo_path)
+
         if self.check_git_tag:
+            pre_bump_git_tag = self.git_tag_prefix + str(self.version)
             if self.git.check_tag_on_current_commit(pre_bump_git_tag):
                 print(f'tag on current commit: {pre_bump_git_tag}')
                 self.bump = False
@@ -109,8 +112,6 @@ class SoftwareVersion:
             # optional parts being 0, e.g. we can have a tag: 0.0.0-0+0
             self.version = Common.emit_optional_zero_parts(self.version)
 
-        if (self.commit or self.create_git_tag) and self.git is None:
-            self.git = GitUtils(self.repo_path)
         self.git_tag = self.git_tag_prefix + str(self.version)
         if self.commit:
             self.git.commit_file(self.version_file, self.git_tag)

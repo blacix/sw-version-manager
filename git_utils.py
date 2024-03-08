@@ -12,6 +12,10 @@ class GitUtils:
         current_commit = self.repo.head.commit
         tag_on_current_commit = any(
             tag.commit == current_commit for tag in self.repo.tags if tag.name == tag_name_to_check)
+        if tag_on_current_commit:
+            print(tag_name_to_check)
+        else:
+            print("")
         return tag_on_current_commit
 
     def commit_file(self, file_path: str, commit_message: str):
@@ -22,18 +26,16 @@ class GitUtils:
             self.repo.git.push('origin', self.repo.active_branch.name)
 
     def create_tag(self, tag_name):
-        # print(f'tag: {tag_name}')
         self.repo.create_tag(tag_name, message=tag_name)
         self.repo.git.push('origin', tag_name)
+        print(f'{tag_name}')
 
 
 def bash_exit(result: bool):
     if result:
-        print('true')
         sys.exit(0)
     else:
-        print('false')
-        sys.exit(0)
+        sys.exit(1)
 
 
 if __name__ == '__main__':
@@ -55,4 +57,4 @@ if __name__ == '__main__':
     if args.check:
         bash_exit(gitUtils.check_tag_on_current_commit(args.tag))
 
-    sys.exit(0)
+    bash_exit(True)
