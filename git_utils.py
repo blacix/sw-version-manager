@@ -25,36 +25,49 @@ class GitUtils:
             commit = self.repo.index.commit(commit_message)
             self.repo.git.push('origin', self.repo.active_branch.name)
 
-    def create_tag(self, tag_name):
-        self.repo.create_tag(tag_name, message=tag_name)
-        self.repo.git.push('origin', tag_name)
+    @staticmethod
+    def _create_tag(repo: git.Repo, tag_name):
+        # print(f'tagging {repo} with {tag_name}')
+        repo.create_tag(tag_name, message=tag_name)
+        repo.git.push('origin', tag_name)
         print(f'{tag_name}')
 
+    def tag_repo(self, tag_name):
+        self._create_tag(self.repo, tag_name)
 
-def bash_exit(result: bool):
-    if result:
-        sys.exit(0)
-    else:
-        sys.exit(1)
+    def tag_submodules(self, tag_name):
+        for submodule in self.repo.submodules:
+            self._create_tag(git.Repo(submodule.abspath), tag_name)
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Command-line arguments example')
+    parser = argparse.ArgumentParser(description='Git utility for tagging repos')
     parser.add_argument('--repo', default=".", help='Path to the git repository')
     parser.add_argument('--tag', required=True, help='Name of the git tag')
-    parser.add_argument('--check', action='store_true', help='checks if the tag provided is on the current commit')
-    parser.add_argument('--create', action='store_true', help='creates tag on the current commit')
+
+    parser.add_argument('--tag_repo', action='store_true',
+                        help='creates tag in the repo on the current commit')
+    parser.add_argument('--tag_submodules', action='store_true', help='tag submodules')
+
+    return_value = 0
     args = parser.parse_args()
     gitUtils = GitUtils(args.repo)
-    if args.create:
+    if args.tag_repo:
         try:
-            gitUtils.create_tag(args.tag)
-            bash_exit(True)
+            gitUtils.tag_repo(args.tag)
         except Exception as e:
             print(e)
-            bash_exit(False)
+            return_value = 1
 
-    if args.check:
-        bash_exit(gitUtils.check_tag_on_current_commit(args.tag))
+    if args.tag_submodules:
+        try:
+            gitUtils.tag_submodules(args.tag)
+        except Exception as e:
+            print(e)
+            return_value = 2
 
-    bash_exit(True)
+    if not args.tag_repo and not args.tag_submodules:
+        if not gitUtils.check_tag_on_current_commit(args.tag):
+            return_value = 3
+
+    sys.exit(return_value)
