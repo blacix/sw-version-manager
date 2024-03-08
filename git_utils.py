@@ -41,7 +41,7 @@ class GitUtils:
 
     @staticmethod
     def _delete_tag(repo: git.Repo, tag_name):
-        print(f'deleting {tag_name} from {repo}')
+        # print(f'deleting {tag_name} from {repo}')
         try:
             local_tag = repo.tags[tag_name]
             repo.delete_tag(local_tag)
@@ -82,11 +82,11 @@ if __name__ == '__main__':
             print(e)
             return_value = 2
 
+    if args.delete:
+        gitUtils.delete_tags(args.tag)
+
     if not args.tag_repo and not args.tag_submodules and not args.delete:
         if not gitUtils.check_tag_on_current_commit(args.tag):
             return_value = 3
-
-    if args.delete:
-        gitUtils.delete_tags(args.tag)
 
     sys.exit(return_value)
