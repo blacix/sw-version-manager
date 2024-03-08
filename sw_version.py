@@ -87,8 +87,9 @@ class SoftwareVersion:
         self.version = self.parser.parse()
         if self.version is None:
             print('Parse error')
-            return -1
+            return 1
 
+        return_value = 0
         if (self.commit or self.create_git_tag or self.check_git_tag) and self.git is None:
             self.git = GitUtils(self.repo_path)
 
@@ -99,6 +100,7 @@ class SoftwareVersion:
                 self.bump = False
                 self.create_git_tag = False
                 self.commit = False
+                return_value = 2
 
         if self.bump:
             self._bump()
@@ -114,14 +116,22 @@ class SoftwareVersion:
 
         self.git_tag = self.git_tag_prefix + str(self.version)
         if self.commit:
-            self.git.commit_file(self.version_file, self.git_tag)
+            try:
+                self.git.commit_file(self.version_file, self.git_tag)
+            except Exception as e:
+                print(e)
+                return_value = 3
 
         if self.create_git_tag:
-            self.git.create_tag(self.git_tag)
+            try:
+                self.git.create_tag(self.git_tag)
+            except Exception as e:
+                print(e)
+                return_value = 4
 
         result = str(self.git_tag_prefix + str(self.version))
         print(result)
-        return 0
+        return return_value
 
 
 if __name__ == '__main__':

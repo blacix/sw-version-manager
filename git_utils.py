@@ -22,7 +22,7 @@ class GitUtils:
         if self.repo.is_dirty(path=file_path):
             # print(f'commit_file: {file_path} {commit_message}')
             self.repo.index.add(file_path)
-            self.repo.index.commit(commit_message)
+            commit = self.repo.index.commit(commit_message)
             self.repo.git.push('origin', self.repo.active_branch.name)
 
     def create_tag(self, tag_name):
