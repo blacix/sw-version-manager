@@ -39,6 +39,21 @@ class GitUtils:
         for submodule in self.repo.submodules:
             self._create_tag(git.Repo(submodule.abspath), tag_name)
 
+    @staticmethod
+    def _delete_tag(repo: git.Repo, tag_name):
+        print(f'deleting {tag_name} from {repo}')
+        try:
+            local_tag = repo.tags[tag_name]
+            repo.delete_tag(local_tag)
+            repo.remotes.origin.push(f':refs/tags/{tag_name}')
+        except Exception as e:
+            print(e)
+
+    def delete_tags(self, tag_name):
+        self._delete_tag(self.repo, tag_name)
+        for submodule in self.repo.submodules:
+            self._delete_tag(git.Repo(submodule.abspath), tag_name)
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Git utility for tagging repos')
@@ -48,6 +63,7 @@ if __name__ == '__main__':
     parser.add_argument('--tag_repo', action='store_true',
                         help='creates tag in the repo on the current commit')
     parser.add_argument('--tag_submodules', action='store_true', help='tag submodules')
+    parser.add_argument('--delete', action='store_true', help='delete tags')
 
     return_value = 0
     args = parser.parse_args()
@@ -66,8 +82,11 @@ if __name__ == '__main__':
             print(e)
             return_value = 2
 
-    if not args.tag_repo and not args.tag_submodules:
+    if not args.tag_repo and not args.tag_submodules and not args.delete:
         if not gitUtils.check_tag_on_current_commit(args.tag):
             return_value = 3
+
+    if args.delete:
+        gitUtils.delete_tags(args.tag)
 
     sys.exit(return_value)
