@@ -68,7 +68,6 @@ if __name__ == '__main__':
     tag_group.add_argument('--delete', action='store_true', help='tag submodules')
     tag_group.add_argument('--create', action='store_true', help='Name of the git tag')
     parser_tag.add_argument('--submodules', action='store_true', help='tag submodules')
-    parser_tag.add_argument('--repo', default=".", help='Path to the git repository')
 
     return_value = 0
     args = parser.parse_args()
