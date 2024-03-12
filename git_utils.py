@@ -27,9 +27,9 @@ class GitUtils:
 
     @staticmethod
     def _create_tag(repo: git.Repo, tag_name):
-        # print(f'tagging {repo} with {tag_name}')
-        repo.create_tag(tag_name, message=tag_name)
-        repo.git.push('origin', tag_name)
+        print(f'tagging {repo} with {tag_name}')
+        # repo.create_tag(tag_name, message=tag_name)
+        # repo.git.push('origin', tag_name)
         print(f'{tag_name}')
 
     def tag_repo(self, tag_name):
@@ -75,14 +75,14 @@ if __name__ == '__main__':
     if args.group == 'tag':
         if args.create:
             try:
-                gitUtils.tag_repo(args.tag)
+                gitUtils.tag_repo(args.name)
             except Exception as e:
                 print(e)
                 return_value = 1
 
             if args.submodules:
                 try:
-                    gitUtils.tag_submodules(args.tag)
+                    gitUtils.tag_submodules(args.name)
                 except Exception as e:
                     print(e)
                     return_value = 2
