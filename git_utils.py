@@ -57,11 +57,11 @@ class GitUtils:
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Git utility for tagging repos')
-    parser.add_argument('--repo', default=".", help='Path to the git repository')
 
     subparsers = parser.add_subparsers(dest='group', help='Choose a group (required)')
 
     parser_tag = subparsers.add_parser('tag')
+    parser.add_argument('--repo', default=".", help='Path to the git repository')
     parser_tag.add_argument('--name', required=True, help='Name of the git tag')
     tag_group = parser_tag.add_mutually_exclusive_group(required=True)
     tag_group.add_argument('--check', action='store_true', help='Name of the git tag')
