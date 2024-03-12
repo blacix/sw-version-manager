@@ -90,7 +90,7 @@ if __name__ == '__main__':
         if args.delete:
             gitUtils.delete_tags(args.name)
 
-        if not args.check:
+        if args.check:
             if not gitUtils.check_tag_on_current_commit(args.name):
                 return_value = 3
 
