@@ -58,35 +58,40 @@ class GitUtils:
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Git utility for tagging repos')
     parser.add_argument('--repo', default=".", help='Path to the git repository')
-    parser.add_argument('--tag', required=True, help='Name of the git tag')
 
-    parser.add_argument('--tag_repo', action='store_true',
-                        help='creates tag in the repo on the current commit')
-    parser.add_argument('--tag_submodules', action='store_true', help='tag submodules')
-    parser.add_argument('--delete', action='store_true', help='delete tags')
+    subparsers = parser.add_subparsers(dest='group', help='Choose a group (required)')
+
+    parser_tag = subparsers.add_parser('tag')
+    parser_tag.add_argument('--name', required=True, help='Name of the git tag')
+    tag_group = parser_tag.add_mutually_exclusive_group(required=True)
+    tag_group.add_argument('--check', action='store_true', help='Name of the git tag')
+    tag_group.add_argument('--delete', action='store_true', help='tag submodules')
+    tag_group.add_argument('--create', action='store_true', help='Name of the git tag')
+    parser_tag.add_argument('--submodules', action='store_true', help='tag submodules')
 
     return_value = 0
     args = parser.parse_args()
     gitUtils = GitUtils(args.repo)
-    if args.tag_repo:
-        try:
-            gitUtils.tag_repo(args.tag)
-        except Exception as e:
-            print(e)
-            return_value = 1
+    if args.group == 'tag':
+        if args.create:
+            try:
+                gitUtils.tag_repo(args.tag)
+            except Exception as e:
+                print(e)
+                return_value = 1
 
-    if args.tag_submodules:
-        try:
-            gitUtils.tag_submodules(args.tag)
-        except Exception as e:
-            print(e)
-            return_value = 2
+            if args.submodules:
+                try:
+                    gitUtils.tag_submodules(args.tag)
+                except Exception as e:
+                    print(e)
+                    return_value = 2
 
-    if args.delete:
-        gitUtils.delete_tags(args.tag)
+        if args.delete:
+            gitUtils.delete_tags(args.name)
 
-    if not args.tag_repo and not args.tag_submodules and not args.delete:
-        if not gitUtils.check_tag_on_current_commit(args.tag):
-            return_value = 3
+        if not args.check:
+            if not gitUtils.check_tag_on_current_commit(args.name):
+                return_value = 3
 
     sys.exit(return_value)
