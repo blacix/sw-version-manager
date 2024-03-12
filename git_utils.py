@@ -27,9 +27,9 @@ class GitUtils:
 
     @staticmethod
     def _create_tag(repo: git.Repo, tag_name):
-        print(f'tagging {repo} with {tag_name}')
-        # repo.create_tag(tag_name, message=tag_name)
-        # repo.git.push('origin', tag_name)
+        # print(f'tagging {repo} with {tag_name}')
+        repo.create_tag(tag_name, message=tag_name)
+        repo.git.push('origin', tag_name)
         print(f'{tag_name}')
 
     def tag_repo(self, tag_name):
