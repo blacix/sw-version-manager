@@ -46,6 +46,9 @@ class SoftwareVersion:
 
         self._parse()
 
+    def get_version(self):
+        return str(self.git_tag_prefix + str(self.version))
+
     @staticmethod
     def parse_arguments():
         parser = argparse.ArgumentParser(description='Command-line arguments example')
@@ -67,7 +70,6 @@ class SoftwareVersion:
         return parser.parse_args()
 
     def _parse(self):
-        semver.VersionInfo.major
         self.version = self.parser.parse()
         # When a mandatory version is bumped with semver, the optional parts with the value 0
         # are emitted from the version object.
@@ -128,8 +130,7 @@ class SoftwareVersion:
                 print(e)
                 return_value = 4
 
-        result = str(self.git_tag_prefix + str(self.version))
-        print(result)
+        print(self.get_version())
         return return_value
 
     def _check_git_tag(self):
