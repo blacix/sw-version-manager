@@ -8,6 +8,21 @@ class GitUtils:
         self.repo_path = repo_path
         self.repo = git.Repo(repo_path)
 
+    def checkout_branch(self, branch_name, new_branch=False):
+        local_branches = [b.name for b in self.repo.heads]
+        # print(local_branches)
+        # remote_branches = [b.name for b in self.repo.references]
+        # print(remote_branches)
+        if branch_name in local_branches:
+            self.repo.git.checkout(branch_name)
+        else:
+            # If the branch doesn't exist locally, fetch from origin and checkout
+            self.repo.remotes.origin.fetch()
+            if new_branch:
+                self.repo.git.checkout('-b', branch_name)
+            else:
+                self.repo.git.checkout('-b', branch_name, f'origin/{branch_name}')
+
     def check_tag_on_current_commit(self, tag_name_to_check: str) -> bool:
         current_commit = self.repo.head.commit
         tag_on_current_commit = any(
@@ -18,26 +33,28 @@ class GitUtils:
             print("")
         return tag_on_current_commit
 
-    def commit_file(self, file_path: str, commit_message: str):
+    def commit_file(self, file_path: str, commit_message: str, push=False):
         if self.repo.is_dirty(path=file_path):
             # print(f'commit_file: {file_path} {commit_message}')
             self.repo.index.add(file_path)
             commit = self.repo.index.commit(commit_message)
-            self.repo.git.push('origin', self.repo.active_branch.name)
+            if push:
+                self.repo.git.push('origin', self.repo.active_branch.name)
 
     @staticmethod
-    def _create_tag(repo: git.Repo, tag_name):
+    def _create_tag(repo: git.Repo, tag_name, push=False):
         # print(f'tagging {repo} with {tag_name}')
         repo.create_tag(tag_name, message=tag_name)
-        repo.git.push('origin', tag_name)
+        if push:
+            repo.git.push('origin', tag_name)
         print(f'{tag_name}')
 
-    def tag_repo(self, tag_name):
-        self._create_tag(self.repo, tag_name)
+    def tag_repo(self, tag_name, push=False):
+        self._create_tag(self.repo, tag_name, push)
 
-    def tag_submodules(self, tag_name):
+    def tag_submodules(self, tag_name, push=False):
         for submodule in self.repo.submodules:
-            self._create_tag(git.Repo(submodule.abspath), tag_name)
+            self._create_tag(git.Repo(submodule.abspath), tag_name, push)
 
     @staticmethod
     def _delete_tag(repo: git.Repo, tag_name):

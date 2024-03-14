@@ -147,7 +147,7 @@ class SoftwareVersion:
     def bump(self, bump):
         self._bump_version(bump)
         self.parser.update(self.version)
-        return self.version
+        return self.get_version()
 
 
 if __name__ == '__main__':
